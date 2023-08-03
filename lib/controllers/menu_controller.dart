@@ -11,4 +11,14 @@ class CustomMenuController extends ChangeNotifier{
       _globalKey.currentState?.openDrawer();
     }
   }
+
+  int _selectedMenuItem = 0;
+
+  int get selectedMenuItem => _selectedMenuItem;
+
+  void selectMenuItem(int item) {
+    _selectedMenuItem = item;
+    notifyListeners(); // Notify listeners that the state has changed
+  }
+
 }
