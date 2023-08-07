@@ -2,12 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:phishing_simulation_app/screens/home_page.dart';
-import '../repository/authentication_repository.dart';
-import 'sign_up_form.dart';
+import 'package:phishing_simulation_app/screens/Authentication/sign_up_form.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/home_page.dart';
+import '../../repository/authentication_repository.dart';
 
-import '../constant.dart';
-import 'dialog_box.dart';
+
+import '../../constant.dart';
+import '../Components/dialog_box.dart';
 import 'forgot_password_form.dart';
 
 
@@ -193,6 +194,8 @@ class _SignInFormState extends State<SignInForm> {
                               gif: 'assets/gif/ForgotPassword.gif',
                               title: 'Forgot password',
                               form: ForgotPasswordForm(),
+                              widthFactor: 0.9,
+                              heightFactor: 0.9,
                             );
 
 
@@ -257,6 +260,8 @@ class _SignInFormState extends State<SignInForm> {
                               gif: 'assets/gif/SignUp.gif',
                               title: 'Sign Up',
                               form: SignUpForm(),
+                              widthFactor: 0.9,
+                              heightFactor: 0.9,
                             );
                           },
                         );

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_button/flutter_animated_button.dart';
 import 'package:phishing_simulation_app/constant.dart';
-import 'package:phishing_simulation_app/screens/sign_in_form.dart';
+import 'package:phishing_simulation_app/screens/Authentication/sign_in_form.dart';
 
-import 'dialog_box.dart';
+import 'Components/dialog_box.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -97,6 +97,8 @@ class _LandingPageState extends State<LandingPage> {
                                   title: 'Sign In',
                                   form: SignInForm(),
                                   gif: 'assets/gif/SignIn.gif',
+                                  widthFactor: 0.9,
+                                  heightFactor: 0.9,
 
                                 );
                               },

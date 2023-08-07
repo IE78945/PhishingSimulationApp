@@ -3,7 +3,7 @@ import 'package:phishing_simulation_app/constant.dart';
 
 
 
-void showCustomDialog(BuildContext context, {required ValueChanged onValue, required String gif, required String title, required Widget form}) {
+void showCustomDialog(BuildContext context, {required ValueChanged onValue,  String? gif, required String title, required Widget form, required double widthFactor, required double heightFactor}) {
   showGeneralDialog(
     context: context,
     barrierLabel: "Barrier",
@@ -13,8 +13,8 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue, requ
     pageBuilder: (_, __, ___) {
       return Center(
         child: FractionallySizedBox(
-          widthFactor: 0.9,
-          heightFactor: 0.9,
+          widthFactor: widthFactor,
+          heightFactor: heightFactor,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
             decoration: BoxDecoration(
@@ -38,13 +38,14 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue, requ
               body: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Expanded(
-                    flex: 4,
-                    child: Image.asset(
-                      gif,
-                      fit: BoxFit.cover,
+                  if (gif != null)
+                    Expanded(
+                      flex: 4,
+                      child: Image.asset(
+                        gif,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
                   Expanded(
                     flex: 4,
                     child: Container(

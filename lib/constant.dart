@@ -5,6 +5,8 @@ import 'dart:ui';
 const MyDarkBlue = Color(0xFF2FBBF5);
 const MyLightBlue = Color(0xFFA4E1F4);
 const MyWhite = Color(0xFFFBFAF8);
+const SideBarMenuColor = Color(0xFF4D5875);
+const AdminMainWidgetColor = Color(0xFFF2F4FC);
 
 const landingPageTitle = TextStyle(
     color: MyDarkBlue ,

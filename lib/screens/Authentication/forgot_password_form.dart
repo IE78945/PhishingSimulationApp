@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:phishing_simulation_app/screens/home_page.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/home_page.dart';
 
-import '../constant.dart';
-import '../repository/authentication_repository.dart';
-import 'dialog_box.dart';
+import '../../constant.dart';
+import '../../repository/authentication_repository.dart';
+import '../Components/dialog_box.dart';
 
 
 class ForgotPasswordForm extends StatefulWidget {

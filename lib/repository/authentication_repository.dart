@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-import 'package:phishing_simulation_app/screens/home_page.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/home_page.dart';
 import 'package:phishing_simulation_app/screens/landing_page.dart';
 
 class AuthentificationRepository extends GetxController {

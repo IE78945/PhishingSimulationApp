@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:phishing_simulation_app/constant.dart';
-import 'package:phishing_simulation_app/screens/side_bar_menu.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/create_new_simulation.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/EmployeePage/employees.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/reports.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/settings.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/side_bar_menu.dart';
 import 'package:provider/provider.dart';
 
-import '../app_responsive.dart';
-import '../controllers/menu_controller.dart';
+import '../../app_responsive.dart';
+import '../../controllers/menu_controller.dart';
 import 'dashboard.dart';
 import 'header_widget.dart';
 
@@ -23,7 +27,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       drawer: SideBar(),
       key: Provider.of<CustomMenuController>(context, listen: false).scaffoldKey,
-      backgroundColor: MyDarkBlue,
+      backgroundColor: AdminMainWidgetColor,
       body: SafeArea(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,17 +36,21 @@ class _HomePageState extends State<HomePage> {
             /// Only show in desktop
             if (AppResponsive.isDesktop(context))
               Expanded(
+                flex: 1,
                 child: SideBar(),
               ),
 
             /// Main Body Part
             Expanded(
-              flex: 4,
+              flex: 5,
               child: Column(
                   children: [
                   /// Header Part
                   HeaderWidget(),
-                  _buildBody(selectedMenuItem),
+                  Padding(
+                      padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height*0.05, horizontal: MediaQuery.of(context).size.width*0.05),
+                      child: _buildBody(selectedMenuItem),
+                  ),
               ]),
             ),
           ],
@@ -53,11 +61,16 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildBody(int selectedMenuItem) {
     switch (selectedMenuItem) {
-      case 0:
-        return Container(color: MyDarkBlue,height: 100,width: 100,); // Widget to be shown when 'item1' is selected.
       case 1:
-        return SingleChildScrollView(); // Widget to be shown when 'item2' is selected.
-    // Add more cases for other menu items if needed...
+        return Dashboard();
+      case 2:
+        return Employees();
+      case 3:
+        return CreateNewSimulation();
+      case 4:
+        return Reports();
+      case 5:
+        return Settings();
       default:
         return SingleChildScrollView(); // Fallback widget or default content.
     }

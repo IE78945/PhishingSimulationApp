@@ -5,9 +5,9 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:phishing_simulation_app/constant.dart';
 import 'package:provider/provider.dart';
 
-import '../controllers/menu_controller.dart';
-import '../repository/authentication_repository.dart';
-import 'landing_page.dart';
+import '../../controllers/menu_controller.dart';
+import '../../repository/authentication_repository.dart';
+import '../landing_page.dart';
 
 class SideBar extends StatefulWidget {
   int? clickedMenuItemIndex;
@@ -52,15 +52,17 @@ class _SideBarState extends State<SideBar> {
   Widget build(BuildContext context) {
     return Drawer(
       elevation: 0,
+      shape: ContinuousRectangleBorder(borderRadius: BorderRadius.zero),
       child: Container(
-        color: MyWhite,
+        width: MediaQuery.of(context).size.width*0.1,
+        color: SideBarMenuColor,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Text(
-                "TEST",
+                "App Name",
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: 25,
@@ -151,55 +153,69 @@ class DrawerListTile extends StatelessWidget {
       : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
-      child: InkWell(
-        onTap: press,
-        child: Row(
-          children: [
-            (isActive ?? false )
-                ? SvgPicture.asset(
-              "assets/Icons/Angle right.svg",
-              width: 15,
-            )
-                : SizedBox(width: 15),
-            SizedBox(width: 20.0 / 4),
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.only(bottom: 15, right: 5),
-                decoration: showBorder ?? true
-                    ? BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Color(0xFFDFE2EF)),
-                  ),
-                )
-                    : null,
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      icon,
-                      height: 20,
-                      color: (isActive ?? false )
-                          ? MyDarkBlue
-                          : Colors.black
-                    ),
-                    SizedBox(width: 20.0 * 0.75),
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.button?.copyWith(
-                        color: (isActive ?? false )
-                            ? MyDarkBlue
-                            : Colors.black
+    return Column(
+      children: [
+        /*
+        Container(
+          height: 5.0,
+          decoration: BoxDecoration(
+            color: (isActive ?? false )
+                ? AdminMainWidgetColor
+                : SideBarMenuColor
+          ),
+          child: Container(
+            padding: EdgeInsets.only(right: 100),
+            height: 5.0,
+            decoration: BoxDecoration(
+              borderRadius:BorderRadius.only(bottomRight: Radius.circular(50.0)),
+              color:  SideBarMenuColor,
+            ),
+          ),
+        ),*/
+        Container(
+          height: 50.0,
+            margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
+            padding: EdgeInsets.only(right: 5),
+            decoration: BoxDecoration(
+              borderRadius:BorderRadius.only(topLeft: Radius.circular(20.0),bottomLeft: Radius.circular(20.0)),
+              color: (isActive ?? false )
+                  ? AdminMainWidgetColor
+                  : SideBarMenuColor// Set the border radius
+            ),
+            child: InkWell(
+              onTap: press,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Row(
+                        children: [
+                          SizedBox(width: 20.0,),
+                          SvgPicture.asset(
+                            icon,
+                            height: 25,
+                            color: (isActive ?? false )
+                                ? SideBarMenuColor
+                                : AdminMainWidgetColor
+                          ),
+                          SizedBox(width: 20.0 * 0.75),
+                          Text(
+                            title,
+                            style: Theme.of(context).textTheme.button?.copyWith(
+                              color: (isActive ?? false )
+                                  ? SideBarMenuColor
+                                  : AdminMainWidgetColor
+                            ),
+                          ),
+                          Spacer(),
+                        ],
                       ),
                     ),
-                    Spacer(),
-                  ],
-                ),
+                ],
               ),
             ),
-          ],
         ),
-      ),
+      ],
     );
   }
 }

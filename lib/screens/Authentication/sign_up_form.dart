@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:phishing_simulation_app/screens/home_page.dart';
-import '../constant.dart';
-import '../repository/authentication_repository.dart';
+import 'package:phishing_simulation_app/constant.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/home_page.dart';
+
+import '../../repository/authentication_repository.dart';
+
 
 
 class SignUpForm extends StatefulWidget {
