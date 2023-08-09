@@ -27,11 +27,11 @@ class EmployeeRepository extends GetxController{
 
   //Store photo in firebase storage
 
-  Future<String> uploadPicture(Uint8List imageBytes) async {
+  Future<List<String>> uploadPicture(Uint8List imageBytes) async {
     String pictureURL = "";
-
+    String randomName = "";
     try {
-      final String randomName = getRandomString(10);
+      randomName = getRandomString(10);
       final Reference ref = storage.ref().child('EmployeesPictures').child('$randomName.jpg');
       final metadata = SettableMetadata(
         contentType: 'image/jpeg', // Change this to the appropriate content type
@@ -56,11 +56,32 @@ class EmployeeRepository extends GetxController{
         });
       }
     } catch (e) {
+      print("error uploading image");
       print(e.toString());
       pictureURL = "";
     }
 
-    return pictureURL;
+    return [pictureURL,"$randomName.jpg"];
+  }
+
+  Future<bool> deletePicture(String pictureName) async {
+    bool result = false;
+    final Reference ref = storage.ref().child('EmployeesPictures').child(pictureName);
+    await ref.delete().whenComplete(() =>
+      {result = true,}
+    )
+        .catchError((error, stackTrace){
+      print(error.toString());
+      Get.snackbar(
+        "Error",
+        "Something went wrong please retry later",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.white.withOpacity(0.7),
+        colorText: Colors.red,
+      );
+      result = false;
+    });
+    return result;
   }
 
   //Store Employee in firestore
@@ -101,6 +122,14 @@ class EmployeeRepository extends GetxController{
     });
   }
 
+  // Fetch All employees in a given department firestore
+  Future<List<EmployeeModel>> getEmployeesByDepartment(String departmentName) async {
+    final employeesRef = _db.collection('Employee');
+    final querySnapshot = await employeesRef.where('Department', isEqualTo: departmentName).get();
+
+    return querySnapshot.docs.map((document) => EmployeeModel.fromSnapshot(document)).toList();
+  }
+
   //delete employee
   Future<void> deleteEmployee(String employeeId) async {
     try {
@@ -135,7 +164,8 @@ class EmployeeRepository extends GetxController{
     await _db.collection("Employee").doc(employee.id).update({
       "FullName" : employee.fullName,
       "Email" : employee.email,
-      //"PhotoURL" : employee.photoURL,
+      "PhotoURL" : employee.photoURL,
+      "PhotoName" : employee.photoName,
       "Department" : employee.department,
     }).whenComplete(() => {
       Get.snackbar(
@@ -148,6 +178,7 @@ class EmployeeRepository extends GetxController{
       result =true
     })
         .catchError((error, stackTrace){
+          print("error editing employee");
       print(error.toString());
       Get.snackbar(
         "Error",

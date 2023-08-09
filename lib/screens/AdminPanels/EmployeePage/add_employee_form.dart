@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:phishing_simulation_app/constant.dart';
+import 'package:phishing_simulation_app/models/department_model.dart';
 import 'package:phishing_simulation_app/models/employee_model.dart';
+import 'package:phishing_simulation_app/repository/department_repository.dart';
 import 'package:phishing_simulation_app/repository/employee_repository.dart';
 import 'package:phishing_simulation_app/screens/Components/CustomButtonForm.dart';
 
@@ -21,6 +23,7 @@ class AddEmployeeForm extends StatefulWidget {
 class _AddEmployeeFormState extends State<AddEmployeeForm> {
 
   final employeeRepo = Get.put(EmployeeRepository());
+  final departmentRepo = Get.put(DepartmentRepository());
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _emailController = TextEditingController();
@@ -29,13 +32,28 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
   String? _selectedDepartment;
   PlatformFile? pickedFile;
   bool isLoading = false;
+  List<String> DepartmentListNames =[] ;
 
+  @override
+  void initState() {
+    super.initState();
+    fetchDepartments();
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _fullNameController.dispose();
     super.dispose();
+  }
+
+  Future<void> fetchDepartments() async {
+    Stream<List<DepartmentModel>> departmentsStream = departmentRepo.getAllDepartments();
+
+    List<DepartmentModel> departmentsList = await departmentsStream.first;
+    DepartmentListNames = departmentsList.map((department) => department.departmentName).toList();
+
+    print(DepartmentListNames);
   }
 
   void ClearFormField(){
@@ -48,94 +66,96 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
     _fullNameController.clear();
   }
 
-  void AddNewEmployee(BuildContext context) {
-    Future( () async {
-        if (_formKey.currentState!.validate()) {
-          // All fields are valitade
-          //...... Do something : check is user already exists if not add to database
-          setState(() {
-            isLoading = true;
-          });
+  void AddNewEmployee(BuildContext context) async{
+    if (_formKey.currentState!.validate()) {
+      // All fields are valitade
+      //...... Do something : check is user already exists if not add to database
+      setState(() {
+        isLoading = true;
+      });
 
-/*
-          //Store employee picture if it's not null
-          if (pickedFile!= null){
-            String pictureURL = await employeeRepo.uploadPicture(pickedFile!.bytes!);
-            print("image non null");
-            // image stored, Store employee
-            if (pictureURL != ""){
-              final employee = EmployeeModel(
-                  fullName: _fullNameController.text,
-                  email: _emailController.text,
-                  department: _selectedDepartment,
-                  //photoURL : pictureURL ,
-              );
 
-              Future<bool> isEmployeeAdded =  employeeRepo.AddEmployee(employee);
-              // if employee was added successflly
-              if (await isEmployeeAdded)
-                ClearFormField();
-              else{
-                //I should delete the image .....
+      //Store employee picture if it's not null
+      if (pickedFile!= null){
+        List<String> pictureData = await employeeRepo.uploadPicture(pickedFile!.bytes!);
+        print("image non null");
+        // image stored, Store employee
+        if (pictureData != ""){
+          final employee = EmployeeModel(
+            fullName: _fullNameController.text,
+            email: _emailController.text,
+            department: _selectedDepartment,
+            photoURL : pictureData[0] ,
+            photoName: pictureData[1],
+          );
 
-                setState(() {
-                  isLoading = false;
-                });
-              }
+          Future<bool> isEmployeeAdded =  employeeRepo.AddEmployee(employee);
+          // if employee was added successflly
+          if (await isEmployeeAdded)
+            ClearFormField();
+          else{
+            //I should delete the image .....
 
-            }
-            //else image is not stored , user should retry
-            else {
-              setState(() {
-                isLoading = false;
-              });
-              Get.snackbar(
-                "Error",
-                "Something went Wrong; Please retry later",
-                snackPosition: SnackPosition.TOP,
-                backgroundColor: Colors.white.withOpacity(0.7),
-                colorText: Colors.red,
-              );
-            }
-          }
-*/
-          // Admin didn't enter an image
-
-            final employee = EmployeeModel(
-              fullName: _fullNameController.text,
-              email: _emailController.text,
-              department: _selectedDepartment,
-              //photoURL : null,
-            );
-
-            Future<bool> isEmployeeAdded =  employeeRepo.AddEmployee(employee);
-            // if employee was added successflly
-            if (await isEmployeeAdded)
-              ClearFormField();
-            else{
-              setState(() {
-                isLoading = false;
-              });
-            }
+            setState(() {
+              isLoading = false;
+            });
           }
 
-
-        // Form not valid
+        }
+        //else image is not stored , user should retry
         else {
+          setState(() {
+            isLoading = false;
+          });
           Get.snackbar(
             "Error",
-            "Please verify informations",
+            "Something went Wrong; Please retry later",
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.white.withOpacity(0.7),
             colorText: Colors.red,
           );
         }
-      },
-    );
+      }
+
+      // Admin didn't enter an image
+
+      final employee = EmployeeModel(
+        fullName: _fullNameController.text,
+        email: _emailController.text,
+        department: _selectedDepartment,
+      );
+
+      Future<bool> isEmployeeAdded =  employeeRepo.AddEmployee(employee);
+      // if employee was added successflly
+      if (await isEmployeeAdded){
+        ClearFormField();
+        Navigator.of(context).pop();
+      }
+
+      else{
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+
+    // Form not valid
+    else {
+      Get.snackbar(
+        "Error",
+        "Please verify informations",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.white.withOpacity(0.7),
+        colorText: Colors.red,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+
+
+
     return  Stack(
       children: [
         SingleChildScrollView(
@@ -144,7 +164,7 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                /*
+
                 //upload Image
                 GestureDetector(
                   onTap: () async {
@@ -197,7 +217,7 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
                       ]
                   ),
                 ),
-                 */
+
 
                 Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,32 +279,41 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
                         "Department",
                         style: TextFieldTitle,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 16),
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedDepartment,
-                          onChanged: (newValue) {
-                            setState(() {
-                              _selectedDepartment = newValue!;
-                            });
-                          },
-                          items: ['HR', 'Finance', 'IT', 'Marketing']
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
+                      FutureBuilder<void>(
+                        future: fetchDepartments(),
+                        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8, bottom: 16),
+                              child: DropdownButtonFormField<String>(
+                                value: _selectedDepartment,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    _selectedDepartment = newValue!;
+                                  });
+                                },
+                                items: DepartmentListNames
+                                    .map<DropdownMenuItem<String>>((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                                decoration:  InputDecoration(
+                                  border: OutlineInputBorder(borderSide: BorderSide( width: 3, color: Colors.black),borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                                ),
+                                validator: (value) {
+                                  // Since the field is not required, no need to validate it
+                                  return null;
+                                },
+                              ),
                             );
-                          }).toList(),
-                          decoration:  InputDecoration(
-                            border: OutlineInputBorder(borderSide: BorderSide( width: 3, color: Colors.black),borderRadius: BorderRadius.all(Radius.circular(10.0))),
-
-                          ),
-                          validator: (value) {
-                            // Since the field is not required, no need to validate it
-                            return null;
-                          },
-                        ),
-                      ),
+                          } else {
+                            // Display a loading indicator or placeholder if the snapshot is not done yet
+                            return CircularProgressIndicator();
+                          }
+                        },
+                      )
 
 
 
@@ -297,7 +326,7 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
                   padding: const EdgeInsets.only(top: 8, bottom: 24),
                   child: CustomButtonForm(
                     context,
-                    BtnAction: () { print ('hi');AddNewEmployee(context); },
+                    BtnAction: () { AddNewEmployee(context); },
                     textBtn: 'Add',
                     icon: CupertinoIcons.add,
                     widthBtn: 100,

@@ -32,6 +32,7 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
   String? _selectedDepartment;
   PlatformFile? pickedFile;
   bool isLoading = false;
+  late EmployeeModel editedEmployee;
 
 
   @override
@@ -50,46 +51,82 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
     _fullNameController.clear();
   }
 
-  void EditEmployee(BuildContext context) {
-    Future( () async {
-      if (_formKey.currentState!.validate()) {
-        // All fields are valitade
-        //...... Do something : check is user already exists if not add to database
-        setState(() {
-          isLoading = true;
-        });
+  void EditEmployee(BuildContext context) async{
+    if (_formKey.currentState!.validate()) {
+      // All fields are valitade
+      //...... Do something :
+      setState(() {
+        isLoading = true;
+      });
 
-
-          final employee = EmployeeModel(
-            fullName: _fullNameController.text,
-            email: _emailController.text,
-            department: _selectedDepartment,
-            //photoURL : null,
-          );
-
-          Future<bool> isEmployeeEdited=  employeeRepo.editEmployee(employee);
-          // if employee was added successflly
-          if (await isEmployeeEdited)
-            ClearFormField();
-          else{
-            setState(() {
-              isLoading = false;
-            });
-          }
-        }
-
-      // Form not valid
-      else {
-        Get.snackbar(
-          "Error",
-          "Please verify informations",
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.white.withOpacity(0.7),
-          colorText: Colors.red,
+      // admin have picked a photo
+      if (pickedFile!.bytes! != null){
+        //delete old photo from firebase storage if it's not null
+        if (widget.employee.photoName != null)
+          await employeeRepo.deletePicture(widget.employee.photoName!);
+        //upload the new image to firebase storage
+        List<String> pictureData = await employeeRepo.uploadPicture(pickedFile!.bytes!);
+        // Save changes
+        editedEmployee = EmployeeModel(
+          id: widget.employee.id,
+          fullName: _fullNameController.text,
+          email: _emailController.text,
+          department: _selectedDepartment,
+          photoURL : pictureData[0],
+          photoName: pictureData[1],
         );
+
       }
-    },
-    );
+
+      // admin haven't picked a new photo
+      else {
+
+        // if employee have already a saved photo
+          if (widget.employee.photoName != null ){
+            editedEmployee = EmployeeModel(
+              id: widget.employee.id,
+              fullName: _fullNameController.text,
+              email: _emailController.text,
+              department: _selectedDepartment,
+              photoName: widget.employee.photoName,
+
+            );
+          }
+
+        //if employee don't have a saved photo
+          else{
+            editedEmployee = EmployeeModel(
+              id: widget.employee.id,
+              fullName: _fullNameController.text,
+              email: _emailController.text,
+            );
+          }
+
+      }
+
+
+      // Save employee
+      Future<bool> isEmployeeEdited=  employeeRepo.editEmployee(editedEmployee);
+      // if employee was added successflly
+      if (await isEmployeeEdited)
+        ClearFormField();
+      else{
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+
+    // Form not valid
+    else {
+      Get.snackbar(
+        "Error",
+        "Please verify informations",
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.white.withOpacity(0.7),
+        colorText: Colors.red,
+      );
+    }
   }
 
   @override
@@ -107,7 +144,7 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                /*
+
                 //upload Image
                 GestureDetector(
                   onTap: () async {
@@ -134,7 +171,9 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
                               _selectedImageBytes!,
                               fit: BoxFit.cover,
                             )
-                                : Container(
+                                : widget.employee.photoURL != null 
+                                  ? Image.network(widget.employee.photoURL!, fit: BoxFit.cover,)
+                                  : Container(
                                 color: Colors.grey,
                                 child: Icon(Icons.person, size: 40,color: MyWhite,)
                             ),
@@ -160,7 +199,7 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
                       ]
                   ),
                 ),
-                 */
+
 
                 Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,7 +300,7 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
                   child: CustomButtonForm(
                     context,
                     BtnAction: () { 
-                      print ('hi');EditEmployee(context);
+                      EditEmployee(context);
                       },
                     textBtn: 'Save',
                     icon: Icons.save,

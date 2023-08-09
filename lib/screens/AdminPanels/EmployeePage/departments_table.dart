@@ -2,36 +2,39 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:phishing_simulation_app/models/department_model.dart';
 import 'package:phishing_simulation_app/models/employee_model.dart';
+import 'package:phishing_simulation_app/repository/department_repository.dart';
 import 'package:phishing_simulation_app/repository/employee_repository.dart';
 import 'package:phishing_simulation_app/screens/Components/dialog_box.dart';
 
 import 'edit_employee_form.dart';
-class EmployeeTable extends StatefulWidget {
+class DepartmentsTable extends StatefulWidget {
   String SearchText;
   
-  EmployeeTable( {Key? key , required this.SearchText}) : super(key: key);
+  DepartmentsTable( {Key? key , required this.SearchText}) : super(key: key);
 
   @override
-  State<EmployeeTable> createState() => _EmployeeTableState();
+  State<DepartmentsTable> createState() => _DepartmentsTableState();
 }
 
-class _EmployeeTableState extends State<EmployeeTable> {
+class _DepartmentsTableState extends State<DepartmentsTable> {
 
-  final _EmployeeRepo = Get.put(EmployeeRepository());
+  final _DepartmentRepo = Get.put(DepartmentRepository());
   late TextEditingController searchController;
   bool isShowEditEmployeesDialog = false;
   RxString NewQuery = ''.obs;
 
 
-  void deleteEmployee(EmployeeModel employee) {
+  void deleteDepartment(DepartmentModel department) {
+
     // Show a confirmation dialog
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
               title: Text('Confirm Deletion'),
-              content: Text('Are you sure you want to delete this employee?'),
+              content: Text('Are you sure you want to delete this department and all his employees?'),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -40,17 +43,8 @@ class _EmployeeTableState extends State<EmployeeTable> {
                   child: Text('Cancel'),
                 ),
                 TextButton(
-                    onPressed: () async {
-                      bool isImageDeleted = false;
-                        if (employee.photoName!.isNotEmpty){
-                          isImageDeleted = await _EmployeeRepo.deletePicture(employee.photoName!);
-                          if (isImageDeleted) {
-                            _EmployeeRepo.deleteEmployee(employee.id!); // Delete the employee
-                          }
-                        }
-                         else
-                        _EmployeeRepo.deleteEmployee(employee.id!); // Delete the employee
-
+                    onPressed: () {
+                      _DepartmentRepo.deleteDepartment(department); // Delete the employee
                         Navigator.of(context).pop(); // Close the dialog
                       },
                     child: Text('Delete'),
@@ -60,25 +54,6 @@ class _EmployeeTableState extends State<EmployeeTable> {
           },
           );
 }
-
-  void editEmployee(EmployeeModel employee){
-    setState(() {
-      isShowEditEmployeesDialog = true;
-    });
-    showCustomDialog(
-      context,
-      onValue: (_) {
-        setState(() {
-          isShowEditEmployeesDialog = false;
-        });
-      },
-      title: 'Edit Employee',
-      form: EditEmployeeForm( employee: employee,),
-      widthFactor: 0.6,
-      heightFactor: 0.9,
-
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +77,7 @@ class _EmployeeTableState extends State<EmployeeTable> {
         child: Column(
           children: [
             Text(
-              "Employees",
+              "Departments",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
@@ -113,54 +88,28 @@ class _EmployeeTableState extends State<EmployeeTable> {
               thickness: 0.5,
               color: Colors.grey,
             ),
-            StreamBuilder<List<EmployeeModel>>(
-              stream: _EmployeeRepo.searchEmployees(widget.SearchText),
+            StreamBuilder<List<DepartmentModel>>(
+              stream: _DepartmentRepo.searchDepartment(widget.SearchText),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  var  employees = snapshot.data;
+                  var  deparments = snapshot.data;
                   return DataTable(
                     columns: [
-                      DataColumn(label: Text('Photo')),
-                      DataColumn(label: Text('Full Name')),
-                      DataColumn(label: Text('Email')),
-                      DataColumn(label: Text('Department')),
+                      //DataColumn(label: Text('Photo')),
+                      DataColumn(label: Text('Department Name')),
                       DataColumn(label: Text('Actions')),
                     ],
-                    rows: employees!.map((employee) {
+                    rows: deparments!.map((department) {
                       //print(employee.photoURL!);
                       return DataRow(
                         cells: [
-
-                          DataCell(
-                             Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.grey, width: 2),
-                                ),
-                                  child: employee.photoURL != null
-                                      ? ClipOval(child: Image.network(employee.photoURL!,fit: BoxFit.cover,)) // Use Image.network for loading image from URL
-                                      : Center(child: Icon(Icons.person)), // Fallback icon when photoURL is null
-                                ),
-                          ),
-
-                          DataCell(Text(employee.fullName)),
-                          DataCell(Text(employee.email)),
-                          DataCell(Text(employee.department!)),
+                          DataCell(Text(department.departmentName)),
                           DataCell(Row(
                             children: [
                               IconButton(
-                                icon: Icon(Icons.edit,color: Colors.blue,),
-                                onPressed: () {
-                                  // Implement edit action
-                                  editEmployee(employee);
-                                },
-                              ),
-                              IconButton(
                                 icon: Icon(Icons.delete,color: Colors.red, ),
                                 onPressed: () {
-                                  deleteEmployee(employee);
+                                  deleteDepartment(department);
                                 },
                               ),
                             ],

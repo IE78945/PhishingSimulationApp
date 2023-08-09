@@ -51,20 +51,20 @@ class _SideBarState extends State<SideBar> {
 
   Widget build(BuildContext context) {
     return Drawer(
-      elevation: 0,
+      elevation: 10,
       shape: ContinuousRectangleBorder(borderRadius: BorderRadius.zero),
       child: Container(
-        width: MediaQuery.of(context).size.width*0.1,
-        color: SideBarMenuColor,
+        width: MediaQuery.of(context).size.width*0.05,
+        color: MyDarkBlue,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Text(
-                "App Name",
+                "Similator",
                 style: TextStyle(
-                  color: Colors.black,
+                  color: AdminMainWidgetColor,
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
                 ),
@@ -155,23 +155,6 @@ class DrawerListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        /*
-        Container(
-          height: 5.0,
-          decoration: BoxDecoration(
-            color: (isActive ?? false )
-                ? AdminMainWidgetColor
-                : SideBarMenuColor
-          ),
-          child: Container(
-            padding: EdgeInsets.only(right: 100),
-            height: 5.0,
-            decoration: BoxDecoration(
-              borderRadius:BorderRadius.only(bottomRight: Radius.circular(50.0)),
-              color:  SideBarMenuColor,
-            ),
-          ),
-        ),*/
         Container(
           height: 50.0,
             margin: EdgeInsets.fromLTRB(20, 0, 0, 0),
@@ -180,7 +163,7 @@ class DrawerListTile extends StatelessWidget {
               borderRadius:BorderRadius.only(topLeft: Radius.circular(20.0),bottomLeft: Radius.circular(20.0)),
               color: (isActive ?? false )
                   ? AdminMainWidgetColor
-                  : SideBarMenuColor// Set the border radius
+                  : MyDarkBlue// Set the border radius
             ),
             child: InkWell(
               onTap: press,
@@ -195,7 +178,7 @@ class DrawerListTile extends StatelessWidget {
                             icon,
                             height: 25,
                             color: (isActive ?? false )
-                                ? SideBarMenuColor
+                                ? MyDarkBlue
                                 : AdminMainWidgetColor
                           ),
                           SizedBox(width: 20.0 * 0.75),
@@ -203,7 +186,7 @@ class DrawerListTile extends StatelessWidget {
                             title,
                             style: Theme.of(context).textTheme.button?.copyWith(
                               color: (isActive ?? false )
-                                  ? SideBarMenuColor
+                                  ? MyDarkBlue
                                   : AdminMainWidgetColor
                             ),
                           ),

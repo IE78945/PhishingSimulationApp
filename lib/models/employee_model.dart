@@ -7,14 +7,16 @@ class EmployeeModel{
   final String? id;
   final String fullName;
   final String email;
-  //final String? photoURL;
+  final String? photoURL;
+  final String? photoName;
   final String? department;
 
   const EmployeeModel({
     this.id,
     required this.fullName,
     required this.email,
-    //this.photoURL,
+    this.photoURL,
+    this.photoName,
     this.department,
   });
 
@@ -22,7 +24,8 @@ class EmployeeModel{
     return{
       "FullName" : fullName,
       "Email" : email,
-      //"PhotoURL" : photoURL,
+      "PhotoURL" : photoURL,
+      "PhotoName" : photoName,
       "Department" : department,
     };
   }
@@ -34,7 +37,8 @@ class EmployeeModel{
       id: document.id,
       fullName: data["FullName"],
       email: data["Email"],
-      //photoURL: data["PhotoURL"],
+      photoURL: data["PhotoURL"],
+      photoName: data["PhotoName"],
       department: data["Department"],
     );
   }
