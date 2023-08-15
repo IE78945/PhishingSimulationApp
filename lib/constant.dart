@@ -37,3 +37,21 @@ const TextFieldTitle = TextStyle(
     fontFamily: "Poppins-Regular",
     fontSize: 18.0,
 );
+
+const EmployeeNamesLayout = TextStyle(
+    color: Colors.black,
+    fontFamily: "Poppins-Bold",
+    fontSize: 18.0,
+);
+
+const EmployeeDepartmentLayout = TextStyle(
+    color: Colors.black54,
+    fontFamily: "Poppins-Regular",
+    fontSize: 16.0,
+);
+
+const EmployeeEmailLayout = TextStyle(
+    color: Colors.black54,
+    fontFamily: "Poppins-ExtraLight",
+    fontSize: 14.0,
+);

@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:phishing_simulation_app/constant.dart';
+import 'package:phishing_simulation_app/models/department_model.dart';
 import 'package:phishing_simulation_app/models/employee_model.dart';
+import 'package:phishing_simulation_app/repository/department_repository.dart';
 import 'package:phishing_simulation_app/repository/employee_repository.dart';
 import 'package:phishing_simulation_app/screens/Components/CustomButtonForm.dart';
 
@@ -24,6 +26,7 @@ class EditEmployeeForm extends StatefulWidget {
 class _EditEmployeeFormState extends State<EditEmployeeForm> {
 
   final employeeRepo = Get.put(EmployeeRepository());
+  final departmentRepo = Get.put(DepartmentRepository());
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _emailController = TextEditingController();
@@ -33,7 +36,23 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
   PlatformFile? pickedFile;
   bool isLoading = false;
   late EmployeeModel editedEmployee;
+  List<DepartmentModel> departmentsList = [];
 
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDepartment = widget.employee.department;
+    _emailController.text = widget.employee.email;
+    _fullNameController.text  = widget.employee.fullName;
+    fetchDepartments();
+  }
+
+  Future<void> fetchDepartments() async {
+    Stream<List<DepartmentModel>> departmentsStream = departmentRepo.getAllDepartments();
+    departmentsList = await departmentsStream.first;
+    setState(() {});  // Trigger a rebuild after loading the list
+  }
 
   @override
   void dispose() {
@@ -45,6 +64,7 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
   void ClearFormField(){
     setState(() {
       isLoading = false;
+      _selectedDepartment = null;
       _selectedDepartment = null;
     });
     _emailController.clear();
@@ -60,7 +80,7 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
       });
 
       // admin have picked a photo
-      if (pickedFile!.bytes! != null){
+      if (pickedFile?.bytes != null){
         //delete old photo from firebase storage if it's not null
         if (widget.employee.photoName != null)
           await employeeRepo.deletePicture(widget.employee.photoName!);
@@ -75,12 +95,10 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
           photoURL : pictureData[0],
           photoName: pictureData[1],
         );
-
       }
 
       // admin haven't picked a new photo
       else {
-
         // if employee have already a saved photo
           if (widget.employee.photoName != null ){
             editedEmployee = EmployeeModel(
@@ -89,7 +107,7 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
               email: _emailController.text,
               department: _selectedDepartment,
               photoName: widget.employee.photoName,
-
+              photoURL: widget.employee.photoURL,
             );
           }
 
@@ -99,6 +117,7 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
               id: widget.employee.id,
               fullName: _fullNameController.text,
               email: _emailController.text,
+              department: _selectedDepartment,
             );
           }
 
@@ -108,8 +127,10 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
       // Save employee
       Future<bool> isEmployeeEdited=  employeeRepo.editEmployee(editedEmployee);
       // if employee was added successflly
-      if (await isEmployeeEdited)
+      if (await isEmployeeEdited) {
         ClearFormField();
+        Navigator.of(context).pop();
+        }
       else{
         setState(() {
           isLoading = false;
@@ -132,10 +153,11 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
   @override
   Widget build(BuildContext context) {
 
-    _emailController.text = widget.employee.email;
-    _fullNameController.text  = widget.employee.fullName;
-    _selectedDepartment = widget.employee.department;
-
+    if (departmentsList.isEmpty) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
     return  Stack(
       children: [
         SingleChildScrollView(
@@ -144,7 +166,6 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-
                 //upload Image
                 GestureDetector(
                   onTap: () async {
@@ -171,7 +192,7 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
                               _selectedImageBytes!,
                               fit: BoxFit.cover,
                             )
-                                : widget.employee.photoURL != null 
+                                : widget.employee.photoURL != null
                                   ? Image.network(widget.employee.photoURL!, fit: BoxFit.cover,)
                                   : Container(
                                 color: Colors.grey,
@@ -262,34 +283,34 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
                         style: TextFieldTitle,
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 16),
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedDepartment,
-                          onChanged: (newValue) {
-                            setState(() {
-                              _selectedDepartment = newValue!;
-                            });
-                          },
-                          items: ['HR', 'Finance', 'IT', 'Marketing']
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          decoration:  InputDecoration(
-                            border: OutlineInputBorder(borderSide: BorderSide( width: 3, color: Colors.black),borderRadius: BorderRadius.all(Radius.circular(10.0))),
-
-                          ),
-                          validator: (value) {
-                            // Since the field is not required, no need to validate it
-                            return null;
-                          },
-                        ),
-                      ),
-
-
-
+                              padding: const EdgeInsets.only(top: 8, bottom: 16),
+                              child:DropdownButtonFormField<String>(
+                                value: _selectedDepartment,
+                                onChanged: (newValue) {
+                                  _selectedDepartment = newValue;
+                                  setState(() {
+                                    _selectedDepartment = newValue;
+                                  });
+                                },
+                                items: departmentsList
+                                    .map<DropdownMenuItem<String>>((DepartmentModel department) {
+                                  return DropdownMenuItem<String>(
+                                    value: department.departmentName,
+                                    child: Text(department.departmentName),
+                                  );
+                                }).toList(),
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(width: 3, color: Colors.black),
+                                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  // Since the field is not required, no need to validate it
+                                  return null;
+                                },
+                              ),
+                            )
                     ]
 
                 ),
@@ -299,7 +320,7 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
                   padding: const EdgeInsets.only(top: 8, bottom: 24),
                   child: CustomButtonForm(
                     context,
-                    BtnAction: () { 
+                    BtnAction: () {
                       EditEmployee(context);
                       },
                     textBtn: 'Save',
@@ -318,5 +339,5 @@ class _EditEmployeeFormState extends State<EditEmployeeForm> {
 
       ],
     );
-  }
+  }}
 }

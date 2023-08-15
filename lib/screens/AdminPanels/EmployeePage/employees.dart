@@ -4,13 +4,11 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:phishing_simulation_app/repository/employee_repository.dart';
 import 'package:phishing_simulation_app/screens/AdminPanels/EmployeePage/add_department_form.dart';
-import 'package:phishing_simulation_app/screens/AdminPanels/EmployeePage/departments_table.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/EmployeePage/employee_grid.dart';
 import 'package:phishing_simulation_app/screens/Components/CostumButtonForInterfaces.dart';
 import 'package:phishing_simulation_app/screens/Components/dialog_box.dart';
-
-import '../../../constant.dart';
 import 'add_employee_form.dart';
-import 'employee_table.dart';
+import 'departments_grid.dart';
 
 class Employees extends StatefulWidget {
   const Employees({Key? key}) : super(key: key);
@@ -34,20 +32,29 @@ class _EmployeesState extends State<Employees> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width* 0.02),
       child:
       Column(
         children: [
-          Row(
-            children: [
-              _buildToggleButton('Employees'),
-
-              _buildToggleButton('Departments'),
-            ],
+          Expanded(
+            flex: 1,
+            child: Row(
+              children: [
+                _buildToggleButton('Employees'),
+                  SizedBox(width:MediaQuery.of(context).size.width* 0.02 ),
+                _buildToggleButton('Departments'),
+              ],
+            ),
           ),
-          SizedBox(height:MediaQuery.of(context).size.height* 0.05 ),
-          selectedOption == 'Employees'
-                ? _EmployeesSubInterface()
-                : _GroupsSubInterface(),
+          Expanded(
+            flex: 11,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height* 0.02),
+              child: selectedOption == 'Employees'
+                  ? _EmployeesSubInterface()
+                  : _GroupsSubInterface(),
+            ),
+          ),
 
         ],
       ),
@@ -62,7 +69,6 @@ class _EmployeesState extends State<Employees> {
         });
       },
       child: Container(
-        padding: EdgeInsets.all(MediaQuery.of(context).size.height* 0.01),
         decoration: BoxDecoration(
           border: selectedOption == option
               ? Border(bottom: BorderSide(width: 2, color: Colors.blue))
@@ -81,46 +87,55 @@ class _EmployeesState extends State<Employees> {
   }
 
   Widget _EmployeesSubInterface() {
-
     return Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: SearchBarEmployee(),
-              ),
-              SizedBox(width: 5),
-              Expanded(
-                child: CustomButtonForInterfaces(
-                    context,
-                    BtnAction: () {
-                      setState(() {
-                        isShowAddEmployeesDialog = true;
-                      });
-                      showCustomDialog(
-                        context,
-                        onValue: (_) {
-                          setState(() {
-                            isShowAddEmployeesDialog = false;
-                          });
-                        },
-                        title: 'Add Employee',
-                        form: AddEmployeeForm(),
-                        widthFactor: 0.6,
-                        heightFactor: 0.9,
+          Expanded(
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: SearchBarEmployee(),
+                ),
+                SizedBox(width: 5),
+                Expanded(
+                  child: CustomButtonForInterfaces(
+                      context,
+                      BtnAction: () {
+                        setState(() {
+                          isShowAddEmployeesDialog = true;
+                        });
+                        showCustomDialog(
+                          context,
+                          onValue: (_) {
+                            setState(() {
+                              isShowAddEmployeesDialog = false;
+                            });
+                          },
+                          title: 'Add Employee',
+                          form: AddEmployeeForm(),
+                          widthFactor: 0.6,
+                          heightFactor: 0.9,
 
-                      );
+                        );
 
-                    },
-                    textBtn: 'New Employee',
-                    icon: Icon(Icons.add),
-                    paddingsize: 12.0),
-              ),
-            ],
+                      },
+                      textBtn: 'New Employee',
+                      icon: Icon(Icons.add),
+                      paddingsize: 12.0),
+                ),
+              ],
+            ),
           ),
-          SizedBox(height:MediaQuery.of(context).size.height* 0.05),
-          EmployeeTable(SearchText: searchTextEmployee,),
+          Expanded(
+              flex : 9,
+              child: Padding(
+                padding:EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height* 0.02,horizontal:  MediaQuery.of(context).size.height* 0.02),
+                child:
+                //EmployeeTable(SearchText: searchTextEmployee,),
+                      SingleChildScrollView(
+                      child : EmployeeGrid(SearchText: searchTextEmployee),
+                      ),
+              )),
         ],
       );
 
@@ -129,43 +144,53 @@ class _EmployeesState extends State<Employees> {
   Widget _GroupsSubInterface() {
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: SearchBarDepartments(),
-            ),
-            SizedBox(width: 5),
-            Expanded(
-              child: CustomButtonForInterfaces(
-                  context,
-                  BtnAction: () {
-                    setState(() {
-                      isShowAddDepartmentsDialog = true;
-                    });
-                    showCustomDialog(
+        Expanded(
+          child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: SearchBarDepartments(),
+                ),
+                SizedBox(width: 5),
+                Expanded(
+                  child: CustomButtonForInterfaces(
                       context,
-                      onValue: (_) {
+                      BtnAction: () {
                         setState(() {
-                          isShowAddDepartmentsDialog  = false;
+                          isShowAddDepartmentsDialog = true;
                         });
+                        showCustomDialog(
+                          context,
+                          onValue: (_) {
+                            setState(() {
+                              isShowAddDepartmentsDialog  = false;
+                            });
+                          },
+                          title: 'Add Department',
+                          form: AddDepartmentForm(),
+                          widthFactor: 0.6,
+                          heightFactor: 0.9,
+
+                        );
+
                       },
-                      title: 'Add Department',
-                      form: AddDepartmentForm(),
-                      widthFactor: 0.6,
-                      heightFactor: 0.9,
-
-                    );
-
-                  },
-                  textBtn: 'New Department',
-                  icon: Icon(Icons.add),
-                  paddingsize: 12.0),
+                      textBtn: 'New Department',
+                      icon: Icon(Icons.add),
+                      paddingsize: 12.0),
+                ),
+              ],
             ),
-          ],
         ),
-        SizedBox(height:MediaQuery.of(context).size.height* 0.05),
-        DepartmentsTable(SearchText: searchTextDepartments,),
+        //DepartmentsTable(SearchText: searchTextDepartments,),
+        Expanded(
+            flex : 9,
+            child: Padding(
+              padding:EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height* 0.02,horizontal:  MediaQuery.of(context).size.height* 0.02),
+              child:
+              SingleChildScrollView(
+                child : DepartmentsGrid(SearchText: searchTextDepartments),
+              ),
+            )),
       ],
     );
   }

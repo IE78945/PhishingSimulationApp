@@ -26,7 +26,9 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                   .controlMenu,
             ),
           if (!AppResponsive.isMobile(context)) ...{
-            Spacer(),
+            Flexible(
+              child: SizedBox(),
+            ),
           }
         ],
       ),

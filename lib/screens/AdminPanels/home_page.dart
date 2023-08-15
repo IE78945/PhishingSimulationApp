@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:phishing_simulation_app/constant.dart';
-import 'package:phishing_simulation_app/screens/AdminPanels/create_new_simulation.dart';
 import 'package:phishing_simulation_app/screens/AdminPanels/EmployeePage/employees.dart';
 import 'package:phishing_simulation_app/screens/AdminPanels/reports.dart';
 import 'package:phishing_simulation_app/screens/AdminPanels/settings.dart';
@@ -9,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../app_responsive.dart';
 import '../../controllers/menu_controller.dart';
+import 'CostumSimulation/costum_simulation.dart';
 import 'dashboard.dart';
 import 'header_widget.dart';
 
@@ -20,9 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-
     int selectedMenuItem = Provider.of<CustomMenuController>(context).selectedMenuItem;
-
 
     return Scaffold(
       drawer: SideBar(),
@@ -32,26 +30,35 @@ class _HomePageState extends State<HomePage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Side Navigation Menu
-            /// Only show in desktop
+            // Side Navigation Menu (Only show in desktop)
             if (AppResponsive.isDesktop(context))
               Expanded(
                 flex: 1,
                 child: SideBar(),
               ),
-
-            /// Main Body Part
+            // Main Body Part
             Expanded(
               flex: 5,
               child: Column(
-                  children: [
-                  /// Header Part
-                  HeaderWidget(),
-                  Padding(
-                      padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height*0.05, horizontal: MediaQuery.of(context).size.width*0.05),
-                      child: _buildBody(selectedMenuItem),
+                crossAxisAlignment: CrossAxisAlignment.start, // Align children to the start
+                children: [
+                  // Header Part
+                  Expanded(
+                      flex : 1,
+                      child: HeaderWidget()
                   ),
-              ]),
+                  // Main Content
+                  Expanded (
+                    flex:10,
+                    child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    child: Expanded(
+                      child: _buildBody(selectedMenuItem),
+                    ),
+                  ),
+                  )
+                ],
+              ),
             ),
           ],
         ),
@@ -66,7 +73,7 @@ class _HomePageState extends State<HomePage> {
       case 2:
         return Employees();
       case 3:
-        return CreateNewSimulation();
+        return CustomSimulation();
       case 4:
         return Reports();
       case 5:
@@ -75,7 +82,4 @@ class _HomePageState extends State<HomePage> {
         return SingleChildScrollView(); // Fallback widget or default content.
     }
   }
-
-
-
 }

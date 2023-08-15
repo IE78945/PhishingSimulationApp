@@ -32,7 +32,7 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
   String? _selectedDepartment;
   PlatformFile? pickedFile;
   bool isLoading = false;
-  List<String> DepartmentListNames =[] ;
+  List<DepartmentModel> departmentsList = [];
 
   @override
   void initState() {
@@ -49,11 +49,9 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
 
   Future<void> fetchDepartments() async {
     Stream<List<DepartmentModel>> departmentsStream = departmentRepo.getAllDepartments();
+    departmentsList = await departmentsStream.first;
+    setState(() {});  // Trigger a rebuild after loading the list
 
-    List<DepartmentModel> departmentsList = await departmentsStream.first;
-    DepartmentListNames = departmentsList.map((department) => department.departmentName).toList();
-
-    print(DepartmentListNames);
   }
 
   void ClearFormField(){
@@ -95,7 +93,6 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
             ClearFormField();
           else{
             //I should delete the image .....
-
             setState(() {
               isLoading = false;
             });
@@ -118,25 +115,27 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
       }
 
       // Admin didn't enter an image
+      else {
+        final employee = EmployeeModel(
+          fullName: _fullNameController.text,
+          email: _emailController.text,
+          department: _selectedDepartment,
+        );
 
-      final employee = EmployeeModel(
-        fullName: _fullNameController.text,
-        email: _emailController.text,
-        department: _selectedDepartment,
-      );
+        Future<bool> isEmployeeAdded =  employeeRepo.AddEmployee(employee);
+        // if employee was added successflly
+        if (await isEmployeeAdded){
+          ClearFormField();
+          Navigator.of(context).pop();
+        }
 
-      Future<bool> isEmployeeAdded =  employeeRepo.AddEmployee(employee);
-      // if employee was added successflly
-      if (await isEmployeeAdded){
-        ClearFormField();
-        Navigator.of(context).pop();
+        else{
+          setState(() {
+            isLoading = false;
+          });
+        }
       }
 
-      else{
-        setState(() {
-          isLoading = false;
-        });
-      }
     }
 
     // Form not valid
@@ -154,194 +153,195 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
   @override
   Widget build(BuildContext context) {
 
+    if (departmentsList.isEmpty) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+    else {
+      return  Stack(
+        children: [
+          SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
 
+                  //upload Image
+                  GestureDetector(
+                    onTap: () async {
+                      FilePickerResult? result = await FilePicker.platform.pickFiles(
+                        type: FileType.image,
+                      );
 
-    return  Stack(
-      children: [
-        SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-
-                //upload Image
-                GestureDetector(
-                  onTap: () async {
-                    FilePickerResult? result = await FilePicker.platform.pickFiles(
-                      type: FileType.image,
-                    );
-
-                    if (result != null) {
-                      setState(() {
-                        _selectedImageBytes = result.files.single.bytes;
-                        pickedFile = result.files.first;
-                      });
-                    }
-                  },
-                  child: Stack(
-                      children: [
-                        SizedBox(
-                          width: 120,
-                          height: 120,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(100),
-                            child: _selectedImageBytes != null
-                                ? Image.memory(
-                              _selectedImageBytes!,
-                              fit: BoxFit.cover,
-                            )
-                                : Container(
-                                color: Colors.grey,
-                                child: Icon(Icons.person, size: 40,color: MyWhite,)
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: Container(
-                              width: 35,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100),
-                                color: MyLightBlue,
+                      if (result != null) {
+                        setState(() {
+                          _selectedImageBytes = result.files.single.bytes;
+                          pickedFile = result.files.first;
+                        });
+                      }
+                    },
+                    child: Stack(
+                        children: [
+                          SizedBox(
+                            width: 120,
+                            height: 120,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: _selectedImageBytes != null
+                                  ? Image.memory(
+                                _selectedImageBytes!,
+                                fit: BoxFit.cover,
+                              )
+                                  : Container(
+                                  color: Colors.grey,
+                                  child: Icon(Icons.person, size: 40,color: MyWhite,)
                               ),
-                              child: const Icon(
-                                CupertinoIcons.camera_fill,
-                                color: MyWhite,
-                                size: 20,
-                              ),
-                            )
-                        )
-                      ]
-                  ),
-                ),
-
-
-                Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 20),
-
-                      //Full Name
-                      const Text(
-                        "Full name",
-                        style: TextFieldTitle,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 16),
-                        child: TextFormField(
-                          controller: _fullNameController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a full name';
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(borderSide: BorderSide( width: 3, color: Colors.black),borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.fromLTRB(4, 0, 8, 0),
-                              child: Icon(Icons.person),
                             ),
                           ),
-                        ),
-                      ),
-
-                      //Email
-                      const Text(
-                        "Email",
-                        style: TextFieldTitle,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 16),
-                        child: TextFormField(
-                          controller: _emailController,
-                          validator: (value) {
-                            if (value!.isEmpty || !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").hasMatch(value)) {
-                              return "Please enter a valid email address";
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(borderSide: BorderSide( width: 3, color: Colors.black),borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.fromLTRB(4, 0, 8, 0),
-                              child: Icon(Icons.email_rounded),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      //Department
-                      const Text(
-                        "Department",
-                        style: TextFieldTitle,
-                      ),
-                      FutureBuilder<void>(
-                        future: fetchDepartments(),
-                        builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done) {
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 8, bottom: 16),
-                              child: DropdownButtonFormField<String>(
-                                value: _selectedDepartment,
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    _selectedDepartment = newValue!;
-                                  });
-                                },
-                                items: DepartmentListNames
-                                    .map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                                decoration:  InputDecoration(
-                                  border: OutlineInputBorder(borderSide: BorderSide( width: 3, color: Colors.black),borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                          Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                width: 35,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  color: MyLightBlue,
                                 ),
-                                validator: (value) {
-                                  // Since the field is not required, no need to validate it
-                                  return null;
-                                },
-                              ),
-                            );
-                          } else {
-                            // Display a loading indicator or placeholder if the snapshot is not done yet
-                            return CircularProgressIndicator();
-                          }
-                        },
-                      )
-
-
-
-                    ]
-
-                ),
-
-                //Button
-                Padding(
-                  padding: const EdgeInsets.only(top: 8, bottom: 24),
-                  child: CustomButtonForm(
-                    context,
-                    BtnAction: () { AddNewEmployee(context); },
-                    textBtn: 'Add',
-                    icon: CupertinoIcons.add,
-                    widthBtn: 100,
-                    topLeftRadius: 25,
-                    isLoading: isLoading,
+                                child: const Icon(
+                                  CupertinoIcons.camera_fill,
+                                  color: MyWhite,
+                                  size: 20,
+                                ),
+                              )
+                          )
+                        ]
+                    ),
                   ),
-                ),
 
 
-              ],
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 20),
+
+                        //Full Name
+                        const Text(
+                          "Full name",
+                          style: TextFieldTitle,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8, bottom: 16),
+                          child: TextFormField(
+                            controller: _fullNameController,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a full name';
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(borderSide: BorderSide( width: 3, color: Colors.black),borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.fromLTRB(4, 0, 8, 0),
+                                child: Icon(Icons.person),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        //Email
+                        const Text(
+                          "Email",
+                          style: TextFieldTitle,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8, bottom: 16),
+                          child: TextFormField(
+                            controller: _emailController,
+                            validator: (value) {
+                              if (value!.isEmpty || !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").hasMatch(value)) {
+                                return "Please enter a valid email address";
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(borderSide: BorderSide( width: 3, color: Colors.black),borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.fromLTRB(4, 0, 8, 0),
+                                child: Icon(Icons.email_rounded),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        //Department
+                        const Text(
+                          "Department",
+                          style: TextFieldTitle,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8, bottom: 16),
+                          child:DropdownButtonFormField<String>(
+                            value: _selectedDepartment,
+                            onChanged: (newValue) {
+                              _selectedDepartment = newValue;
+                              setState(() {
+                                _selectedDepartment = newValue;
+                              });
+                            },
+                            items: departmentsList
+                                .map<DropdownMenuItem<String>>((DepartmentModel department) {
+                              return DropdownMenuItem<String>(
+                                value: department.departmentName,
+                                child: Text(department.departmentName),
+                              );
+                            }).toList(),
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(width: 3, color: Colors.black),
+                                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                              ),
+                            ),
+                            validator: (value) {
+                              // Since the field is not required, no need to validate it
+                              return null;
+                            },
+                          ),
+                        )
+
+
+
+                      ]
+
+                  ),
+
+                  //Button
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 24),
+                    child: CustomButtonForm(
+                      context,
+                      BtnAction: () { AddNewEmployee(context); },
+                      textBtn: 'Add',
+                      icon: CupertinoIcons.add,
+                      widthBtn: 100,
+                      topLeftRadius: 25,
+                      isLoading: isLoading,
+                    ),
+                  ),
+
+
+                ],
+              ),
             ),
           ),
-        ),
 
-      ],
-    );
+        ],
+      );
+    }
+
+
   }
 }
