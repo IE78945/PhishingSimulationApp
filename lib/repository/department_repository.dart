@@ -56,6 +56,16 @@ class DepartmentRepository extends GetxController{
     });
   }
 
+  Future<List<DepartmentModel>> getAllDepartmentsList() async {
+    try {
+      QuerySnapshot querySnapshot = await _db.collection('Departments').get();
+      return querySnapshot.docs.map((doc) => DepartmentModel.fromSnapshot(doc as DocumentSnapshot<Map<String, dynamic>>)).toList();
+    } catch (e) {
+      print("Error fetching departments: $e");
+      return []; // Return an empty list or handle the error as needed
+    }
+  }
+
   //delete department
   Future<void> deleteDepartment(DepartmentModel department) async {
     try {

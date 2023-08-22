@@ -26,7 +26,6 @@ class EmployeeRepository extends GetxController{
   }
 
   //Store photo in firebase storage
-
   Future<List<String>> uploadPicture(Uint8List imageBytes) async {
     String pictureURL = "";
     String randomName = "";
@@ -120,6 +119,17 @@ class EmployeeRepository extends GetxController{
         return EmployeeModel.fromSnapshot(doc);
       }).toList();
     });
+  }
+
+  // Fetch All employees in firestore in List
+  Future<List<EmployeeModel>> getAllEmployeeList() async {
+    try {
+      QuerySnapshot querySnapshot = await _db.collection('Employee').orderBy("FullName").get();
+      return querySnapshot.docs.map((doc) => EmployeeModel.fromSnapshot(doc as DocumentSnapshot<Map<String, dynamic>>)).toList();
+    } catch (e) {
+      print("Error fetching departments: $e");
+      return []; // Return an empty list or handle the error as needed
+    }
   }
 
   // Fetch All employees in a given department firestore

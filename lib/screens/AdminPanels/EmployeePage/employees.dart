@@ -271,7 +271,6 @@ class _EmployeesState extends State<Employees> {
               controller: searchControllerDepartments,
               onChanged: (query) {
                 // Perform search when the text changes
-                // You can call a search function here
                 setState(() {
                   searchTextDepartments = searchControllerDepartments.text;
                 });
