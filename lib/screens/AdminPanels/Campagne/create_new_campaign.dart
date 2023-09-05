@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,7 @@ import 'package:phishing_simulation_app/screens/Components/CustomButtonForm.dart
 import 'package:phishing_simulation_app/screens/Components/dialog_box.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
+import 'dart:html';
 
 
 class CreateNewCampagne extends StatefulWidget {
@@ -179,39 +182,78 @@ class _CreateNewCampagneState extends State<CreateNewCampagne> {
           print('After replacing: $SelectedEmailCode');
 
           //Replace the website url in each email
-            final document = parser.parse(SelectedEmailCode);
-            final anchorElement = document.querySelector('a');
-            if (anchorElement != null) {
-              anchorElement.attributes['href'] = "http://20.199.67.152:3001/page?campaignID=$campaignID&pageURL=$webSiteURL&employeeID=$employeeID";
-              SelectedEmailCode = anchorElement.outerHtml;
-            }
+          // Find the position of the existing anchor element
+          int startIndex = SelectedEmailCode.indexOf('<a href="');
+          int endIndex = SelectedEmailCode.indexOf('</a>', startIndex);
 
+          if (startIndex != -1 && endIndex != -1) {
+            // Extract the existing anchor element
+            String existingAnchor = SelectedEmailCode.substring(startIndex, endIndex + 4);
+
+            // Construct the new anchor element
+            String newAnchor = '<a href="http://20.199.67.152:3001/page?campaignID=$campaignID&pageURL=$webSiteURL&employeeID=$employeeID">http://www.hat-websecurity.com/</a>';
+
+            // Replace the existing anchor with the new one
+            SelectedEmailCode = SelectedEmailCode.replaceFirst(existingAnchor, newAnchor);
+          }
+
+
+
+          print('After replacing link : $SelectedEmailCode');
 
             //Add the traking pixel in the email (to calculate open rate later)
-            SelectedEmailCode += '<img src="https://20.199.67.152:3001//trackingPixel?campaignID=$campaignID&employeeID=$employeeID" width="1" height="1" alt="" style="display:none; />';
+              // Locate the position of </body> in the HTML content
+              int bodyIndex = SelectedEmailCode.indexOf('</body>');
+
+              // Check if </body> was found in the HTML content
+              if (bodyIndex != -1) {
+                // Construct the tracking pixel HTML
+                String trackingPixelHtml =
+                    '<img src="http://20.199.67.152:3001/trackingPixel?campaignID=$campaignID&employeeID=$employeeID" width="1" height="1" alt="" style="display:none" />';
+
+                // Insert the tracking pixel HTML before </body>
+                SelectedEmailCode =
+                    SelectedEmailCode.substring(0, bodyIndex) +
+                        trackingPixelHtml +
+                        SelectedEmailCode.substring(bodyIndex);
+              }
+              else {
+                SelectedEmailCode += '<img src="http://20.199.67.152:3001/trackingPixel?campaignID=$campaignID&employeeID=$employeeID" width="1" height="1" alt="" style="display:none" />';
+
+              }
+              print('After adding invisible pixel : $SelectedEmailCode');
+
+                // send email through server
+          // Define the request body as a map with the necessary data
+          final Map<String, String> body = {
+            'SenderName': senderName,
+            'SenderEmail': senderEmail,
+            'recipients': recipient,
+            'subject': subject,
+            'html': SelectedEmailCode,
+          };
+           var encodedBody = json.encode(body) ;
+
+                final url = Uri.parse('http://localhost:3000/send-email');
+                final response = await http.post(url, headers: {"Content-Type": "application/json"},body: encodedBody);
+                if (response.statusCode == 200) {
+                  // email have been sent
+                  print ("ok");
+                }
+                else {
+                  // something went wrong with the proxy server : connexion , ....
+                  print("Error: ${response.statusCode} - ${response.body}");
+                  Get.snackbar(
+                    "Error",
+                    "Something went wrong please retry later",
+                    snackPosition: SnackPosition.TOP,
+                    backgroundColor: Colors.white.withOpacity(0.7),
+                    colorText: Colors.red,
+                  );
+                }
 
 
-            // send email through server
-            final url = Uri.parse('http://localhost:3000/send-email?SenderName=$senderName&SenderEmail=$senderEmail&recipients=$recipient&subject=$subject&html=$SelectedEmailCode');
-            final response = await http.get(url);
-            if (response.statusCode == 200) {
-              // email have been sent
-              print ("ok");
             }
-            else {
-              // something went wrong with the proxy server : connexion , ....
-              print("Error: ${response.statusCode} - ${response.body}");
-              Get.snackbar(
-                "Error",
-                "Something went wrong please retry later",
-                snackPosition: SnackPosition.TOP,
-                backgroundColor: Colors.white.withOpacity(0.7),
-                colorText: Colors.red,
-              );
-            }
-
-
-        }
 
 
 
@@ -253,311 +295,336 @@ class _CreateNewCampagneState extends State<CreateNewCampagne> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.02),
-        child: Form(
-          key: _formKey_createcampagne,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //mini title : CampagneName
-              Container(
-                margin: EdgeInsets.only(top: 12.0),
-                decoration: BoxDecoration(
-                  border: Border(left: BorderSide(width: 2, color: Colors.black)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    "Campagne Name",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+    return Scaffold(
+        body: Container(
+        height: MediaQuery.of(context).size.height ,
+    width:MediaQuery.of(context).size.width  ,
+    child: SafeArea(
+    child: Padding(
+    padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.02),
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+    Text(
+    "New Campaign",
+    style: TextStyle(
+    fontSize: 34,
+    fontFamily: "Poppins",
+    fontWeight: FontWeight.w600,
+    ),
+
+    ),
+      SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.02),
+          child: Form(
+            key: _formKey_createcampagne,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //mini title : CampagneName
+                Container(
+                  margin: EdgeInsets.only(top: 12.0),
+                  decoration: BoxDecoration(
+                    border: Border(left: BorderSide(width: 2, color: Colors.black)),
                   ),
-                ),
-              ),
-              Padding(
-                  padding: const EdgeInsets.only(top: 8, bottom: 16),
-                  child: Container(
-                    margin: EdgeInsets.symmetric(
-                        horizontal: MediaQuery.of(context).size.height * 0.02),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 2,
-                          blurRadius: 7,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: TextFormField(
-                        decoration: InputDecoration(
-                          hintText: 'Campagne Name',
-                          border: InputBorder.none,
-                        ),
-                        controller: _campaignNameController,
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "This field should not be empty";
-                          }
-                          return null;
-                        },
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      "Campagne Name",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
                     ),
-                  )),
-
-              //mini title : departments & employees
-              Container(
-                margin: EdgeInsets.only(bottom: 12.0),
-                decoration: BoxDecoration(
-                  border: Border(left: BorderSide(width: 2, color: Colors.black)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    "Departments and emplyees",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color:  Colors.black,
-                    ),
                   ),
                 ),
-              ),
-              // department selection
-              MultiSelectDialogField(
-                items: departments.map((department) {
-                  return MultiSelectItem<DepartmentModel>(
-                    department,
-                    department.departmentName,
-                  );
-                }).toList(),
-                title: Text("Departments"),
-                selectedColor: Colors.blue,
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  borderRadius: BorderRadius.all(Radius.circular(40)),
-                  border: Border.all(
-                    color: Colors.blue,
-                    width: 2,
-                  ),
-                ),
-                buttonIcon: Icon(
-                  CupertinoIcons.building_2_fill,
-                  color: Colors.blue,
-                ),
-                buttonText: Text(
-                  "Select department",
-                  style: TextStyle(
-                    color: Colors.blue[800],
-                    fontSize: 16,
-                  ),
-                ),
-                onConfirm: (results) {
-
-                  setState(() {
-                    SelectedDepartments = results as List<DepartmentModel>;
-                  });
-
-                  SelectedDepartments = results as List<DepartmentModel>;
-                },
-                searchable: true,
-                dialogHeight: MediaQuery.of(context).size.width* 0.7,
-                dialogWidth: MediaQuery.of(context).size.width* 0.5,
-                chipDisplay: MultiSelectChipDisplay(
-                  items: SelectedDepartments.map((e) => MultiSelectItem(e, e.departmentName as String)).toList(),
-                  onTap: (value) {
-                    setState(() {
-                      SelectedDepartments.remove(value);
-                    });
-
-                  },
-                ),
-                validator: (value) {
-                  if (SelectedDepartments.isEmpty && SelectedEmployees.isEmpty ) {
-                    return 'Please select at least one department or one employee.';
-                  }
-                  return null; // Return null if the selection is valid.
-                },
-              ),
-
-              //Employee selection
-              SizedBox(height: 12.0,),
-              MultiSelectDialogField(
-                backgroundColor: Colors.white.withOpacity(0.95),
-                items: employees.map((employee) {
-                  return MultiSelectItem<EmployeeModel>(
-                    employee,
-                    '${employee.fullName} - ${employee.department} department',
-                  );
-                }).toList(),
-                title: Text("Employees"),
-                selectedColor: Colors.blue,
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  borderRadius: BorderRadius.all(Radius.circular(40)),
-                  border: Border.all(
-                    color: Colors.blue,
-                    width: 2,
-                  ),
-                ),
-                buttonIcon: Icon(
-                  CupertinoIcons.person_2_fill,
-                  color: Colors.blue,
-                ),
-                buttonText: Text(
-                  "Select employees",
-                  style: TextStyle(
-                    color: Colors.blue[800],
-                    fontSize: 16,
-                  ),
-                ),
-                onConfirm: (results) {
-                  //_selectedAnimals = results;
-                  SelectedEmployees = results as List<EmployeeModel>;
-                  print(SelectedEmployees);
-                },
-                searchable: true,
-                dialogHeight: MediaQuery.of(context).size.width* 0.7,
-                dialogWidth: MediaQuery.of(context).size.width* 0.5,
-                chipDisplay: MultiSelectChipDisplay(
-                  items: SelectedEmployees.map((e) => MultiSelectItem(e, e.fullName as String)).toList(),
-                  onTap: (value) {
-                    setState(() {
-                      SelectedEmployees.remove(value);
-                    });
-                  },
-                ),
-                validator: (value) {
-                  if (SelectedDepartments.isEmpty && SelectedEmployees.isEmpty) {
-                    return 'Please select at least one employee orone department.';
-                  }
-                  return null; // Return null if the selection is valid.
-                },
-              ),
-
-              //mini title : simulations models
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 12.0),
-                decoration: BoxDecoration(
-                  border: Border(left: BorderSide(width: 2, color: Colors.black)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(
-                    "Simulation models",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color:  Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-
-
-              // Simulation table
-              if (simulations.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: DataTable(
-                    columns: [
-                      DataColumn(label: Text("Select")),
-                      DataColumn(label: Text("Simulation Name")),
-                      DataColumn(label: Text("Sender Name")),
-                      DataColumn(label: Text("Object")),
-                      DataColumn(label: Text("Sender email address")),
-                      DataColumn(label: Text("View Email")),
-                      DataColumn(label: Text("View Website")),
-                    ],
-                    rows: simulations.map((simulation) {
-                      return DataRow(cells: [
-                        DataCell(
-                          RadioListTile<bool>(
-                            value:  selectedSimulation == simulation,
-                            groupValue: true,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedSimulation = simulation ;
-                              });
-                            },
+                    padding: const EdgeInsets.only(top: 8, bottom: 16),
+                    child: Container(
+                      margin: EdgeInsets.symmetric(
+                          horizontal: MediaQuery.of(context).size.height * 0.02),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 7,
+                            offset: Offset(0, 3),
                           ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            hintText: 'Campagne Name',
+                            border: InputBorder.none,
+                          ),
+                          controller: _campaignNameController,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "This field should not be empty";
+                            }
+                            return null;
+                          },
                         ),
-                        DataCell(Text(simulation.SimulationName)),
-                        DataCell(Text(simulation.SenderName)),
-                        DataCell(Text(simulation.Object)),
-                        DataCell(Text(simulation.SenderEmail)),
-                        DataCell(IconButton(
-                          icon: Icon(
-                            Icons.visibility,
-                            color: Colors.grey,
-                          ),
-                          onPressed: () {
-                            showCustomDialog(
-                              context,
-                              onValue: (_) {},
-                              title: 'Email',
-                              form: ViewEmail(simulation: simulation),
-                              widthFactor: 0.9,
-                              heightFactor: 0.9,
-                            );
-                          },
-                        )),
-                        DataCell(IconButton(
-                          icon: Icon(
-                            Icons.visibility,
-                            color: Colors.grey,
-                          ),
-                          onPressed: () {
-                            showCustomDialog(
-                              context,
-                              onValue: (_) {},
-                              title: 'WebSite',
-                              form: ViewWebSite(simulation: simulation),
-                              widthFactor: 0.9,
-                              heightFactor: 0.9,
-                            );
-                          },
-                        )),
-                      ]);
-                    }).toList(),
+                      ),
+                    )),
+
+                //mini title : departments & employees
+                Container(
+                  margin: EdgeInsets.only(bottom: 12.0),
+                  decoration: BoxDecoration(
+                    border: Border(left: BorderSide(width: 2, color: Colors.black)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      "Departments and emplyees",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color:  Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                // department selection
+                MultiSelectDialogField(
+                  items: departments.map((department) {
+                    return MultiSelectItem<DepartmentModel>(
+                      department,
+                      department.departmentName,
+                    );
+                  }).toList(),
+                  title: Text("Departments"),
+                  selectedColor: Colors.blue,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.all(Radius.circular(40)),
+                    border: Border.all(
+                      color: Colors.blue,
+                      width: 2,
+                    ),
+                  ),
+                  buttonIcon: Icon(
+                    CupertinoIcons.building_2_fill,
+                    color: Colors.blue,
+                  ),
+                  buttonText: Text(
+                    "Select department",
+                    style: TextStyle(
+                      color: Colors.blue[800],
+                      fontSize: 16,
+                    ),
+                  ),
+                  onConfirm: (results) {
+
+                    setState(() {
+                      SelectedDepartments = results as List<DepartmentModel>;
+                    });
+
+                    SelectedDepartments = results as List<DepartmentModel>;
+                  },
+                  searchable: true,
+                  dialogHeight: MediaQuery.of(context).size.width* 0.7,
+                  dialogWidth: MediaQuery.of(context).size.width* 0.5,
+                  chipDisplay: MultiSelectChipDisplay(
+                    items: SelectedDepartments.map((e) => MultiSelectItem(e, e.departmentName as String)).toList(),
+                    onTap: (value) {
+                      setState(() {
+                        SelectedDepartments.remove(value);
+                      });
+
+                    },
+                  ),
+                  validator: (value) {
+                    if (SelectedDepartments.isEmpty && SelectedEmployees.isEmpty ) {
+                      return 'Please select at least one department or one employee.';
+                    }
+                    return null; // Return null if the selection is valid.
+                  },
+                ),
+
+                //Employee selection
+                SizedBox(height: MediaQuery.of(context).size.height * 0.02,),
+                MultiSelectDialogField(
+                  backgroundColor: Colors.white.withOpacity(0.95),
+                  items: employees.map((employee) {
+                    return MultiSelectItem<EmployeeModel>(
+                      employee,
+                      '${employee.fullName} - ${employee.department} department',
+                    );
+                  }).toList(),
+                  title: Text("Employees"),
+                  selectedColor: Colors.blue,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.all(Radius.circular(40)),
+                    border: Border.all(
+                      color: Colors.blue,
+                      width: 2,
+                    ),
+                  ),
+                  buttonIcon: Icon(
+                    CupertinoIcons.person_2_fill,
+                    color: Colors.blue,
+                  ),
+                  buttonText: Text(
+                    "Select employees",
+                    style: TextStyle(
+                      color: Colors.blue[800],
+                      fontSize: 16,
+                    ),
+                  ),
+                  onConfirm: (results) {
+                    //_selectedAnimals = results;
+                    SelectedEmployees = results as List<EmployeeModel>;
+                    print(SelectedEmployees);
+                  },
+                  searchable: true,
+                  dialogHeight: MediaQuery.of(context).size.width* 0.7,
+                  dialogWidth: MediaQuery.of(context).size.width* 0.5,
+                  chipDisplay: MultiSelectChipDisplay(
+                    items: SelectedEmployees.map((e) => MultiSelectItem(e, e.fullName as String)).toList(),
+                    onTap: (value) {
+                      setState(() {
+                        SelectedEmployees.remove(value);
+                      });
+                    },
+                  ),
+                  validator: (value) {
+                    if (SelectedDepartments.isEmpty && SelectedEmployees.isEmpty) {
+                      return 'Please select at least one employee orone department.';
+                    }
+                    return null; // Return null if the selection is valid.
+                  },
+                ),
+
+                //mini title : simulations models
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 12.0),
+                  decoration: BoxDecoration(
+                    border: Border(left: BorderSide(width: 2, color: Colors.black)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      "Simulation models",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color:  Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+
+
+                // Simulation table
+                if (simulations.isNotEmpty)
+                  Padding(
+                    padding:  EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: [
+                          DataColumn(label: Text("Select")),
+                          DataColumn(label: Text("Simulation Name")),
+                          DataColumn(label: Text("Sender Name")),
+                          DataColumn(label: Text("Object")),
+                          DataColumn(label: Text("Sender email address")),
+                          DataColumn(label: Text("View Email")),
+                          DataColumn(label: Text("View Website")),
+                        ],
+                        rows: simulations.map((simulation) {
+                          return DataRow(cells: [
+                            DataCell(
+                              Radio<bool>(
+                                value:  selectedSimulation == simulation,
+                                groupValue: true,
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedSimulation = simulation ;
+                                  });
+                                },
+                              ),
+                            ),
+                            DataCell(Text(simulation.SimulationName)),
+                            DataCell(Text(simulation.SenderName)),
+                            DataCell(Text(simulation.Object)),
+                            DataCell(Text(simulation.SenderEmail)),
+                            DataCell(IconButton(
+                              icon: Icon(
+                                Icons.visibility,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                showCustomDialog(
+                                  context,
+                                  onValue: (_) {},
+                                  title: 'Email',
+                                  form: ViewEmail(simulation: simulation),
+                                  widthFactor: 0.9,
+                                  heightFactor: 0.9,
+                                );
+                              },
+                            )),
+                            DataCell(IconButton(
+                              icon: Icon(
+                                Icons.visibility,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                showCustomDialog(
+                                  context,
+                                  onValue: (_) {},
+                                  title: 'WebSite',
+                                  form: ViewWebSite(simulation: simulation),
+                                  widthFactor: 0.9,
+                                  heightFactor: 0.9,
+                                );
+                              },
+                            )),
+                          ]);
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+
+
+
+                //Button
+                Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 24),
+                  child: CustomButtonForm(
+                    context,
+                    BtnAction: () {
+                      startCampagne();
+                    },
+                    textBtn: 'Save',
+                    icon: Icons.save,
+                    widthBtn: double.maxFinite,
+                    topLeftRadius: 25,
+                    isLoading: isLoadingForm,
                   ),
                 ),
 
 
 
-              //Button
-              Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 24),
-                child: CustomButtonForm(
-                  context,
-                  BtnAction: () {
-                    startCampagne();
-                  },
-                  textBtn: 'Save',
-                  icon: Icons.save,
-                  widthBtn: double.maxFinite,
-                  topLeftRadius: 25,
-                  isLoading: isLoadingForm,
-                ),
-              ),
-
-
-
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    );
+    ])))));
+
+
   }
 }
 

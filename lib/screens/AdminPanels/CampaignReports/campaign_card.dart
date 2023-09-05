@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:phishing_simulation_app/models/campaign_model.dart';
 import 'package:phishing_simulation_app/repository/campaign_repository.dart';
-import 'package:phishing_simulation_app/screens/AdminPanels/Reports/report_dialog_box.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/CampaignReports/report_dialog_box.dart';
 
 class CampaignCard extends StatefulWidget {
   const CampaignCard({

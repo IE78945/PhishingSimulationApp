@@ -90,7 +90,10 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
           Future<bool> isEmployeeAdded =  employeeRepo.AddEmployee(employee);
           // if employee was added successflly
           if (await isEmployeeAdded)
-            ClearFormField();
+            {
+              ClearFormField();
+              Navigator.of(context).pop();
+            }
           else{
             //I should delete the image .....
             setState(() {

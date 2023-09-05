@@ -128,11 +128,26 @@ class _CreateNewSimulationState extends State<CreateNewSimulation> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Scaffold(
+        body: Container(
+        height: MediaQuery.of(context).size.height ,
+    width:MediaQuery.of(context).size.width  ,
+      child : SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.02),
-        child: Form(
+        child:  Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+        Text(
+        "Create a new Simulation",
+        style: TextStyle(
+          fontSize: 34,
+          fontFamily: "Poppins",
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+        Form(
           key: _formKey_createsimulation,
           child:
               Column(
@@ -286,7 +301,7 @@ class _CreateNewSimulationState extends State<CreateNewSimulation> {
                         margin: EdgeInsets.symmetric(
                             horizontal: MediaQuery.of(context).size.height * 0.02),
                         child: Text(
-                          "Content may not render as expected, it's possible that the package used is missing some necessary styling features.\n if content (text) is correct , i'll be displayed properly when employees visite the web site. ",
+                          "Content may not render as expected, it's possible that the package used to dispaly the page  is missing some necessary styling features.\n if content (text) is correct , i'll be displayed properly when employees visite the web site. ",
                           style: TextStyle(
                             color: Colors.grey,
                           ),
@@ -474,7 +489,7 @@ class _CreateNewSimulationState extends State<CreateNewSimulation> {
                          */
                     ),
                     Text(
-                        "You can use these placeholders as well [EMPLOYEE_NAME], [DEPARTMENT_NAME]. They will be customized for each employee",
+                        "You can use these placeholders as well [EMPLOYEE_NAME], [DEPARTMENT_NAME]. They will be customized for each employee later.",
                         style: TextStyle(
                           color: Colors.grey,
                         )),
@@ -523,7 +538,9 @@ class _CreateNewSimulationState extends State<CreateNewSimulation> {
                     ),
           ]),
         ),
+      ])
       ),
-    );
+    )
+    ));
   }
 }

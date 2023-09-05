@@ -31,34 +31,37 @@ class _EmployeesState extends State<Employees> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width* 0.02),
-      child:
-      Column(
-        children: [
+    return Scaffold(
+        body: Container(
+          height: MediaQuery.of(context).size.height ,
+          width:MediaQuery.of(context).size.width  ,
+          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width* 0.02),
+          child: Column(
+          children: [
+            //toggel btns
+           Padding(
+             padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height* 0.02),
+             child: Row(
+                children: [
+                  _buildToggleButton('Employees'),
+                    SizedBox(width:MediaQuery.of(context).size.width* 0.02 ),
+                  _buildToggleButton('Departments'),
+                ],
+              ),
+           ),
+
+          SizedBox(height: MediaQuery.of(context).size.height* 0.02,),
           Expanded(
-            flex: 1,
-            child: Row(
-              children: [
-                _buildToggleButton('Employees'),
-                  SizedBox(width:MediaQuery.of(context).size.width* 0.02 ),
-                _buildToggleButton('Departments'),
-              ],
-            ),
+            child: selectedOption == 'Employees'
+                    ? _EmployeesSubInterface()
+                    : _GroupsSubInterface(),
           ),
-          Expanded(
-            flex: 11,
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height* 0.02),
-              child: selectedOption == 'Employees'
-                  ? _EmployeesSubInterface()
-                  : _GroupsSubInterface(),
-            ),
-          ),
+
+
 
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildToggleButton(String option) {
@@ -87,65 +90,59 @@ class _EmployeesState extends State<Employees> {
   }
 
   Widget _EmployeesSubInterface() {
-    return Column(
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: SearchBarEmployee(),
-                ),
-                SizedBox(width: 5),
-                Expanded(
-                  child: CustomButtonForInterfaces(
-                      context,
-                      BtnAction: () {
-                        setState(() {
-                          isShowAddEmployeesDialog = true;
-                        });
-                        showCustomDialog(
-                          context,
-                          onValue: (_) {
-                            setState(() {
-                              isShowAddEmployeesDialog = false;
-                            });
-                          },
-                          title: 'Add Employee',
-                          form: AddEmployeeForm(),
-                          widthFactor: 0.6,
-                          heightFactor: 0.9,
+    return  Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+            Row(
+                children: [
+                  Expanded(flex :3, child: SearchBarEmployee()),
+                  SizedBox(width: 5),
+                  Expanded(flex :1, child : CustomButtonForInterfaces(
+                        context,
+                        BtnAction: () {
+                          setState(() {
+                            isShowAddEmployeesDialog = true;
+                          });
+                          showCustomDialog(
+                            context,
+                            onValue: (_) {
+                              setState(() {
+                                isShowAddEmployeesDialog = false;
+                              });
+                            },
+                            title: 'Add Employee',
+                            form: AddEmployeeForm(),
+                            widthFactor: 0.6,
+                            heightFactor: 0.9,
 
-                        );
+                          );
 
-                      },
-                      textBtn: 'New Employee',
-                      icon: Icon(Icons.add),
-                      paddingsize: 12.0),
-                ),
-              ],
+                        },
+                        textBtn: 'New Employee',
+                        icon: Icon(Icons.add),
+                        paddingsize: 12.0),),
+                ],
             ),
-          ),
-          Expanded(
-              flex : 9,
-              child: Padding(
-                padding:EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height* 0.02,horizontal:  MediaQuery.of(context).size.height* 0.02),
-                child:
-                //EmployeeTable(SearchText: searchTextEmployee,),
-                      SingleChildScrollView(
-                      child : EmployeeGrid(SearchText: searchTextEmployee),
-                      ),
-              )),
-        ],
-      );
+
+           Expanded(
+             child: Padding(
+                    padding:EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height* 0.02,horizontal:  MediaQuery.of(context).size.height* 0.02),
+                    child:SingleChildScrollView(
+                          child : EmployeeGrid(SearchText: searchTextEmployee),
+                          ),
+             ),
+           ),
+          ],
+        );
+
 
   }
 
   Widget _GroupsSubInterface() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Expanded(
-          child: Row(
+        Row(
               children: [
                 Expanded(
                   flex: 3,
@@ -169,7 +166,7 @@ class _EmployeesState extends State<Employees> {
                           title: 'Add Department',
                           form: AddDepartmentForm(),
                           widthFactor: 0.6,
-                          heightFactor: 0.9,
+                          heightFactor: 0.6,
 
                         );
 
@@ -180,10 +177,9 @@ class _EmployeesState extends State<Employees> {
                 ),
               ],
             ),
-        ),
+
         //DepartmentsTable(SearchText: searchTextDepartments,),
         Expanded(
-            flex : 9,
             child: Padding(
               padding:EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height* 0.02,horizontal:  MediaQuery.of(context).size.height* 0.02),
               child:

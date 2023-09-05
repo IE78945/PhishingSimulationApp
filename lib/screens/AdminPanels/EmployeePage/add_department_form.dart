@@ -40,6 +40,7 @@ class _AddDepartmentFormState extends State<AddDepartmentForm> {
       isLoading = false;
     });
     _departmentNameController.clear();
+
   }
 
   void AddNewDepartment(BuildContext context) {
@@ -58,7 +59,9 @@ class _AddDepartmentFormState extends State<AddDepartmentForm> {
             Future<bool> isDepartmentAdded =  departmentRepo.AddDepartment(department);
             // if department was added successflly
             if (await isDepartmentAdded)
-              ClearFormField();
+              {ClearFormField();
+              Navigator.of(context).pop();
+              }
             else{
               setState(() {
                 isLoading = false;
@@ -115,7 +118,7 @@ class _AddDepartmentFormState extends State<AddDepartmentForm> {
                             border: OutlineInputBorder(borderSide: BorderSide( width: 3, color: Colors.black),borderRadius: BorderRadius.all(Radius.circular(10.0))),
                             prefixIcon: Padding(
                               padding: const EdgeInsets.fromLTRB(4, 0, 8, 0),
-                              child: Icon(Icons.person),
+                              child: Icon(Icons.account_balance),
                             ),
                           ),
                         ),

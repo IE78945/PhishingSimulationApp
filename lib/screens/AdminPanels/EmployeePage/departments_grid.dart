@@ -68,7 +68,7 @@ class _DepartmentsGridState extends State<DepartmentsGrid> {
                     gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                       crossAxisSpacing: 8.0,
                       mainAxisSpacing: 8.0,
-                      maxCrossAxisExtent: 200, // Maximum width for each cell
+                      maxCrossAxisExtent: 250, // Maximum width for each cell
                       childAspectRatio: 3 / 1, // Width / Height ratio for cells
                     ),
                     itemCount: departments?.length,

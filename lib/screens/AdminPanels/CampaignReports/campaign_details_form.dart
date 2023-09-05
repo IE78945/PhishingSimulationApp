@@ -70,6 +70,7 @@ class _campaignDetailsFormState extends State<campaignDetailsForm> {
                Padding(
                  padding: const EdgeInsets.only(top: 8, bottom: 16),
                  child: Row(
+                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                    children: [
                      MouseRegion(
                        onHover: (event) {
@@ -85,6 +86,7 @@ class _campaignDetailsFormState extends State<campaignDetailsForm> {
                          });
                        },
                        child: Container(
+                         width: MediaQuery.of(context).size.width * 0.1,
                          decoration: BoxDecoration(
                            borderRadius: BorderRadius.circular(5.0), // Adjust the radius as needed
                            border: Border.all(color: buttonColor),
@@ -155,13 +157,15 @@ class _campaignDetailsFormState extends State<campaignDetailsForm> {
                ),
                //Employees details
                const Text(
-                 "Simulation details",
+                 "Employees details",
                  style: TextFieldTitle,
                ),
 
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
-                child: DataTable(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child:DataTable(
                   columns: [
                     DataColumn(label: Text("Employee Name")),
                     DataColumn(label: Text("Department")),
@@ -189,7 +193,7 @@ class _campaignDetailsFormState extends State<campaignDetailsForm> {
 
                     ]);
                   }).toList(),
-                ),
+                ),)
               ),
 
                //Button

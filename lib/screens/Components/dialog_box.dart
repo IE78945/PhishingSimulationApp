@@ -54,7 +54,7 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue,  Str
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Expanded(
-                            flex: 1,
+                            flex: 2,
                             child: Text(
                               title,
                               style: TextStyle(

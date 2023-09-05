@@ -6,9 +6,9 @@ import 'package:provider/provider.dart';
 
 import '../../app_responsive.dart';
 import '../../controllers/menu_controller.dart';
+import 'CampaignReports/campaign_reports.dart';
 import 'CostumSimulation/create_new_simulation.dart';
 import 'Campagne/create_new_campaign.dart';
-import 'Reports/reports.dart';
 import 'header_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
       case 3:
         return CreateNewCampagne();
       case 4:
-        return Reports();
+        return CampaignReports();
       default:
         return SingleChildScrollView(); // Fallback widget or default content.
     }

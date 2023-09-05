@@ -62,8 +62,10 @@ class _DepartmentContainerState extends State<DepartmentContainer> {
         padding: EdgeInsets.all(20),
         child : Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(widget.department.departmentName),
+            SizedBox(width: 5,),
             IconButton(
               icon: Icon(Icons.delete,color: Colors.red, ),
               onPressed: () {
