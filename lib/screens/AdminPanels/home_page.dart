@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:phishing_simulation_app/constant.dart';
 import 'package:phishing_simulation_app/screens/AdminPanels/EmployeePage/employees.dart';
-import 'package:phishing_simulation_app/screens/AdminPanels/reports.dart';
-import 'package:phishing_simulation_app/screens/AdminPanels/settings.dart';
 import 'package:phishing_simulation_app/screens/AdminPanels/side_bar_menu.dart';
 import 'package:provider/provider.dart';
 
 import '../../app_responsive.dart';
 import '../../controllers/menu_controller.dart';
-import 'CostumSimulation/costum_simulation.dart';
-import 'dashboard.dart';
+import 'CostumSimulation/create_new_simulation.dart';
+import 'Campagne/create_new_campaign.dart';
+import 'Reports/reports.dart';
 import 'header_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -42,21 +41,17 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start, // Align children to the start
                 children: [
-                  // Header Part
-                  Expanded(
-                      flex : 1,
-                      child: HeaderWidget()
-                  ),
+                  if (!AppResponsive.isDesktop(context))
+                    // Header Part
+                    Expanded(
+                        flex : 1,
+                        child: HeaderWidget()
+                    ),
                   // Main Content
                   Expanded (
-                    flex:10,
-                    child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                    child: Expanded(
-                      child: _buildBody(selectedMenuItem),
-                    ),
+                    flex :10 ,
+                    child : _buildBody(selectedMenuItem),
                   ),
-                  )
                 ],
               ),
             ),
@@ -68,16 +63,15 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildBody(int selectedMenuItem) {
     switch (selectedMenuItem) {
+
       case 1:
-        return Dashboard();
-      case 2:
         return Employees();
+      case 2:
+        return CreateNewSimulation();
       case 3:
-        return CustomSimulation();
+        return CreateNewCampagne();
       case 4:
         return Reports();
-      case 5:
-        return Settings();
       default:
         return SingleChildScrollView(); // Fallback widget or default content.
     }

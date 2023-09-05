@@ -37,14 +37,11 @@ class _SignInFormState extends State<SignInForm> {
   bool _isObscure = true;
 
 
-  void signIn(BuildContext context) {
-    Future.delayed(
-      const Duration(seconds: 1),
-          () async {
+  Future<void> signIn(BuildContext context) async {
         if (_formKey.currentState!.validate()) {
           // login user in firebase
           Future<bool> isLoggedIn;
-          isLoggedIn = AuthentificationRepository.instance.LoginUserWithEmailAndPassword(_emailController.text.trim(), _PasswordController.text.trim());
+          isLoggedIn = _authRepo.LoginUserWithEmailAndPassword(_emailController.text.trim(), _PasswordController.text.trim());
           if (await isLoggedIn) {
             Navigator.push(
               context,
@@ -86,8 +83,6 @@ class _SignInFormState extends State<SignInForm> {
             colorText: Colors.red,
           );
         }
-      },
-    );
   }
 
   @override

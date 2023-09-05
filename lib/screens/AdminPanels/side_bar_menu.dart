@@ -70,25 +70,26 @@ class _SideBarState extends State<SideBar> {
                 ),
               ),
             ),
+
             DrawerListTile(
-              title: "Dashboard",
-              icon: "assets/svg/dashboard-svgrepo-com.svg",
+              title: "Employees",
+              icon: "assets/svg/people-team-svgrepo-com.svg",
               press: () {
                 _onMenuItemPress(1);
               },
               isActive: isItemSelected(1),
             ),
             DrawerListTile(
-              title: "Employees",
-              icon: "assets/svg/people-team-svgrepo-com.svg",
+              title: "New Simulation",
+              icon: "assets/svg/add-bracket-svgrepo-com.svg",
               press: () {
                 _onMenuItemPress(2);
               },
               isActive: isItemSelected(2),
             ),
             DrawerListTile(
-              title: "New Simulation",
-              icon: "assets/svg/add-bracket-svgrepo-com.svg",
+              title: "New Campagne",
+              icon: "assets/svg/campaigning-svgrepo-com.svg",
               press: () {
                 _onMenuItemPress(3);
               },
@@ -102,19 +103,12 @@ class _SideBarState extends State<SideBar> {
               },
               isActive: isItemSelected(4),
             ),
-            DrawerListTile(
-              title: "Settings",
-              icon: "assets/svg/settings-svgrepo-com.svg",
-              press: () {
-                _onMenuItemPress(5);
-              },
-              isActive: isItemSelected(5),
-            ),
+
             DrawerListTile(
               title: "Sign out",
               icon: "assets/svg/sign-out-svgrepo-com.svg",
               press: () {
-                _onMenuItemPress(6);
+                _onMenuItemPress(5);
                 setState(() {
                   AuthentificationRepository.instance.logout();
                   Get.snackbar(

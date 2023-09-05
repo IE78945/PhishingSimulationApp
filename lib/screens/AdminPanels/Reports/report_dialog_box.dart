@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:phishing_simulation_app/constant.dart';
+import 'package:phishing_simulation_app/models/campaign_model.dart';
+
+import 'campaign_details_form.dart';
 
 
 
-void showCustomDialog(BuildContext context, {required ValueChanged onValue,  String? gif, required String title, required Widget form, required double widthFactor, required double heightFactor}) {
+void showReportsDetailsDialog(BuildContext context, {required ValueChanged onValue , required  CampaignModel? data}) {
   showGeneralDialog(
     context: context,
     barrierLabel: "Barrier",
@@ -13,8 +15,8 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue,  Str
     pageBuilder: (_, __, ___) {
       return Center(
         child: FractionallySizedBox(
-          widthFactor: widthFactor,
-          heightFactor: heightFactor,
+          widthFactor: 0.7,
+          heightFactor: 0.8,
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
             decoration: BoxDecoration(
@@ -39,14 +41,6 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue,  Str
               body: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  if (gif != null)
-                    Expanded(
-                      flex: 4,
-                      child: Image.asset(
-                        gif,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
                   Expanded(
                     flex: 4,
                     child: Container(
@@ -56,7 +50,7 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue,  Str
                           Expanded(
                             flex: 1,
                             child: Text(
-                              title,
+                              "Campaign Details",
                               style: TextStyle(
                                 fontSize: 34,
                                 fontFamily: "Poppins",
@@ -69,7 +63,7 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue,  Str
                             flex: 7,
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: form,
+                              child: campaignDetailsForm(data: data,),
                             ),
                           ),
                         ],

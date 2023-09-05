@@ -28,10 +28,8 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
   late TextEditingController _emailController = TextEditingController();
 
 
-  void ForgotPassword(BuildContext context) {
-    Future.delayed(
-      const Duration(seconds: 1),
-          () async {
+  void ForgotPassword(BuildContext context) async {
+
         if (_formKey.currentState!.validate()) {
           //si les champs sont validées alors ...
           Future<bool>test = AuthentificationRepository.instance.ForgotPassword(_emailController.text.trim());
@@ -51,8 +49,6 @@ class _ForgotPasswordFormState extends State<ForgotPasswordForm> {
           }
         }
 
-      },
-    );
   }
 
 

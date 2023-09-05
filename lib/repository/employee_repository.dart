@@ -127,7 +127,7 @@ class EmployeeRepository extends GetxController{
       QuerySnapshot querySnapshot = await _db.collection('Employee').orderBy("FullName").get();
       return querySnapshot.docs.map((doc) => EmployeeModel.fromSnapshot(doc as DocumentSnapshot<Map<String, dynamic>>)).toList();
     } catch (e) {
-      print("Error fetching departments: $e");
+      print("Error fetching employees: $e");
       return []; // Return an empty list or handle the error as needed
     }
   }

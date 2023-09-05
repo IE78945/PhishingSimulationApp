@@ -36,10 +36,8 @@ class _SignUpFormState extends State<SignUpForm> {
 
 
 
-  void signUp(BuildContext context) {
-    Future.delayed(
-        const Duration(seconds: 1),
-            () async {
+  Future<void> signUp(BuildContext context) async {
+
           if (_formKey.currentState!.validate()) {
             Future<bool> isFirebaseAuthentificationAccountCreated;
             isFirebaseAuthentificationAccountCreated =
@@ -66,8 +64,7 @@ class _SignUpFormState extends State<SignUpForm> {
             }
 
           }
-        }
-    );
+
   }
 
   @override
