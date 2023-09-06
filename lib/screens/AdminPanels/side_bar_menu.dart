@@ -96,19 +96,27 @@ class _SideBarState extends State<SideBar> {
               isActive: isItemSelected(3),
             ),
             DrawerListTile(
-              title: "Reports",
+              title: "Campaigns Reports",
               icon: "assets/svg/report-linechart-svgrepo-com.svg",
               press: () {
                 _onMenuItemPress(4);
               },
               isActive: isItemSelected(4),
             ),
+            DrawerListTile(
+              title: "Employees Reports",
+              icon: "assets/svg/report-linechart-svgrepo-com.svg",
+              press: () {
+                _onMenuItemPress(5);
+              },
+              isActive: isItemSelected(5),
+            ),
 
             DrawerListTile(
               title: "Sign out",
               icon: "assets/svg/sign-out-svgrepo-com.svg",
               press: () {
-                _onMenuItemPress(5);
+                _onMenuItemPress(6);
                 setState(() {
                   AuthentificationRepository.instance.logout();
                   Get.snackbar(

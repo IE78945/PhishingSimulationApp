@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:phishing_simulation_app/constant.dart';
 import 'package:phishing_simulation_app/screens/AdminPanels/EmployeePage/employees.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/EmployeesReports/employees_reports.dart';
 import 'package:phishing_simulation_app/screens/AdminPanels/side_bar_menu.dart';
 import 'package:provider/provider.dart';
 
 import '../../app_responsive.dart';
 import '../../controllers/menu_controller.dart';
 import 'CampaignReports/campaign_reports.dart';
+import 'CeateCampaign/create_new_campaign.dart';
 import 'CostumSimulation/create_new_simulation.dart';
-import 'Campagne/create_new_campaign.dart';
 import 'header_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -72,6 +73,8 @@ class _HomePageState extends State<HomePage> {
         return CreateNewCampagne();
       case 4:
         return CampaignReports();
+      case 5 :
+        return EmployeesReports();
       default:
         return SingleChildScrollView(); // Fallback widget or default content.
     }

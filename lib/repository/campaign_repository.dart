@@ -125,8 +125,133 @@ class CampaignRepository extends GetxController {
     }
   }
 
+  // get how many campaigns an employee have taken
+  Future<int> getCampaignTotalNumberForEachEmployee(String employeeID) async {
+    try {
+      // Reference to the Firestore collection group "TrackingDetails"
+      var queryRef = FirebaseFirestore.instance.collectionGroup('TrakingDetails');
+
+      // Perform a query to get documents where 'employeeID' matches the desired ID
+      var querySnapshot = await queryRef.where('employeeID', isEqualTo: employeeID).get();
+
+      // Get the count of documents in the query result
+      int totalCampaigns = querySnapshot.size;
+
+      print(totalCampaigns);
+      return totalCampaigns;
+    } catch (e) {
+      print("Error counting campaigns for employee $employeeID: $e");
+      return 0; // Handle the error as needed
+    }
+  }
+
+  // get total number of clicked link for each employee
+  Future<int> getClickLinkCountForEachEmployee(String employeeID) async {
+    int linkClickCount = 0;
+
+    try {
+      // Reference to the Firestore collection group "TrackingDetails"
+      var queryRef = FirebaseFirestore.instance.collectionGroup('TrakingDetails');
+
+      // Perform a query to get documents where 'employeeID' matches the desired ID
+      // and 'isEmailOpened' is equal to true
+      var querySnapshot = await queryRef
+          .where('employeeID', isEqualTo: employeeID)
+          .where('isWebSiteLinkClicked', isEqualTo: true)
+          .get();
+
+      // Get the count of documents in the query result
+      linkClickCount = querySnapshot.size;
+      print("clicked link count for employee id : "+employeeID + "is : "+linkClickCount.toString());
+    } catch (e) {
+      print("Error counting link clicked for employee $employeeID: $e");
+    }
+
+    return linkClickCount;
+  }
+
+  // get total number of opened emails for each employee
+  Future<int> getOpenEmailsCountForEachEmployee(String employeeID) async {
+    int openEmailsCount = 0;
+
+    try {
+      // Reference to the Firestore collection group "TrackingDetails"
+      var queryRef = FirebaseFirestore.instance.collectionGroup('TrakingDetails');
+
+      // Perform a query to get documents where 'employeeID' matches the desired ID
+      // and 'isEmailOpened' is equal to true
+      var querySnapshot = await queryRef
+          .where('employeeID', isEqualTo: employeeID)
+          .where('isEmailOpened', isEqualTo: true)
+          .get();
+
+      // Get the count of documents in the query result
+      openEmailsCount = querySnapshot.size;
+      print("opened email count for employee id : "+employeeID + "is : "+openEmailsCount.toString());
+    } catch (e) {
+      print("Error counting opened emails for employee $employeeID: $e");
+    }
+
+    return openEmailsCount;
+  }
+
+  Future<List<CampaignModel>> getCampaignsForEmployee(String employeeID) async {
+    try {
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+          .collectionGroup('TrakingDetails')
+          .where('employeeID', isEqualTo: employeeID)
+          .get();
+
+      final List<CampaignModel> campaignsList = [];
+
+      for (final DocumentSnapshot<Map<String, dynamic>> document in querySnapshot.docs) {
+        // You might want to extract campaign data from the document or reference
+        // and then fetch the campaign details from the 'Campaigns' collection.
+        // Assuming 'campaignID' is a field in your 'TrackingDetails' subcollection.
+        final String campaignID = document['campaignID'];
+        final DocumentSnapshot<Map<String, dynamic>> campaignDocument = await FirebaseFirestore.instance
+            .collection('Campaigns')
+            .doc(campaignID)
+            .get();
+
+        if (campaignDocument.exists) {
+          final CampaignModel campaign = CampaignModel.fromSnapshot(campaignDocument);
+          campaignsList.add(campaign);
+        }
+      }
+
+      return campaignsList;
+    } catch (e) {
+      print('Error fetching campaigns for employee: $e');
+      return [];
+    }
+  }
 
 
+
+
+
+  Future<List<TrakingDataModel>> getTrackingDataForCampaign(String campaignID, String employeeID) async {
+    try {
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot = await _db
+          .collection('Campaigns') // Replace with your collection name
+          .doc(campaignID)
+          .collection('TrakingDetails')
+          .where('employeeID', isEqualTo: employeeID)
+          .get();
+
+      final List<TrakingDataModel> trackingDataList = querySnapshot.docs
+          .map((DocumentSnapshot<Map<String, dynamic>> document) {
+        return TrakingDataModel.fromSnapshot(document);
+      })
+          .toList();
+
+      return trackingDataList;
+    } catch (e) {
+      print('Error fetching tracking data for campaign: $e');
+      return [];
+    }
+  }
 
 
 }

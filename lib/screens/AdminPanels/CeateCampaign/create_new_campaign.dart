@@ -17,8 +17,8 @@ import 'package:phishing_simulation_app/repository/campaign_repository.dart';
 import 'package:phishing_simulation_app/repository/department_repository.dart';
 import 'package:phishing_simulation_app/repository/employee_repository.dart';
 import 'package:phishing_simulation_app/repository/simulation_repository.dart';
-import 'package:phishing_simulation_app/screens/AdminPanels/Campagne/view_email.dart';
-import 'package:phishing_simulation_app/screens/AdminPanels/Campagne/view_web_site.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/CeateCampaign/view_email.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/CeateCampaign/view_web_site.dart';
 import 'package:phishing_simulation_app/screens/Components/CustomButtonForm.dart';
 import 'package:phishing_simulation_app/screens/Components/dialog_box.dart';
 import 'package:http/http.dart' as http;
@@ -121,12 +121,11 @@ class _CreateNewCampagneState extends State<CreateNewCampagne> {
     }
   }
   Future<void> startCampagne() async {
-
-
     // enable loading button
     setState(() {
       isLoadingForm= true;
     });
+
     if (_formKey_createcampagne.currentState!.validate()) {
       if (selectedSimulation!= initSimulation && (SelectedDepartments != [] || SelectedEmployees != []))
       {
@@ -171,6 +170,8 @@ class _CreateNewCampagneState extends State<CreateNewCampagne> {
                 WebSiteLinkClickTime: customTimestamp,
                 EmployeeName: employee.fullName,
                 departmentName: employee.department!,
+                employeeID: employee.id!,
+              campaignID: campaignID,
             );
             //Store informations
             await campaignRepo.addTrakingDetailsForEmployee(campaignID,model,employee.id);
@@ -239,6 +240,13 @@ class _CreateNewCampagneState extends State<CreateNewCampagne> {
                 if (response.statusCode == 200) {
                   // email have been sent
                   print ("ok");
+                  Get.snackbar(
+                    "success",
+                    "Email have been sent successfully to : $recipient",
+                    snackPosition: SnackPosition.TOP,
+                    backgroundColor: Colors.white.withOpacity(0.7),
+                    colorText: Colors.green,
+                  );
                 }
                 else {
                   // something went wrong with the proxy server : connexion , ....
@@ -283,7 +291,7 @@ class _CreateNewCampagneState extends State<CreateNewCampagne> {
       });
       Get.snackbar(
         "Error",
-        "Please make sure you selected a simulation.",
+        "Please make sure you selected a simulation .",
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.white.withOpacity(0.7),
         colorText: Colors.red,

@@ -8,8 +8,8 @@ import 'package:phishing_simulation_app/models/simulation_model.dart';
 import 'package:phishing_simulation_app/models/traking_data_model.dart';
 import 'package:phishing_simulation_app/repository/campaign_repository.dart';
 import 'package:phishing_simulation_app/repository/simulation_repository.dart';
-import 'package:phishing_simulation_app/screens/AdminPanels/Campagne/view_email.dart';
-import 'package:phishing_simulation_app/screens/AdminPanels/Campagne/view_web_site.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/CeateCampaign/view_email.dart';
+import 'package:phishing_simulation_app/screens/AdminPanels/CeateCampaign/view_web_site.dart';
 import 'package:phishing_simulation_app/screens/Components/CustomButtonForm.dart';
 import 'package:intl/intl.dart';
 import 'package:phishing_simulation_app/screens/Components/dialog_box.dart';
@@ -86,7 +86,6 @@ class _campaignDetailsFormState extends State<campaignDetailsForm> {
                          });
                        },
                        child: Container(
-                         width: MediaQuery.of(context).size.width * 0.1,
                          decoration: BoxDecoration(
                            borderRadius: BorderRadius.circular(5.0), // Adjust the radius as needed
                            border: Border.all(color: buttonColor),
@@ -171,7 +170,7 @@ class _campaignDetailsFormState extends State<campaignDetailsForm> {
                     DataColumn(label: Text("Department")),
                     DataColumn(label: Text("Email opened")),
                     DataColumn(label: Text("Time")),
-                    DataColumn(label: Text("Link clicked?")),
+                    DataColumn(label: Text("Link clicked")),
                     DataColumn(label: Text("Time")),
                   ],
                   rows: TrakingDetails.map((detail) {

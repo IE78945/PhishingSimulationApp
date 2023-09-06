@@ -31,7 +31,7 @@ class _CampaignReportsState extends State<CampaignReports> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "Reports",
+                  "Campaign Reports",
                   style: TextStyle(
                     fontSize: 34,
                     fontFamily: "Poppins",
@@ -68,8 +68,9 @@ class _CampaignReportsState extends State<CampaignReports> {
                                 }
                                 else if (snapshot.hasError) {
                                   return Text('Error snapshot: ${snapshot.error}');
-                                } else {
-                                  return CircularProgressIndicator();
+                                }
+                                else {
+                                  return Center(heightFactor: 0.1,widthFactor: 0.1,child: CircularProgressIndicator());
                                 }}
                           ),
                 )),
